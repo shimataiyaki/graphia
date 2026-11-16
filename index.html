@@ -1,0 +1,4225 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Graphia — Graphing Calculator</title>
+  <!-- Original Inline SVG Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230078D4'/%3E%3Cstop offset='100%25' stop-color='%23005A9E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M6 16 H26 M16 6 V26' stroke='rgba(255,255,255,0.35)' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M5 22 C10 9, 14 9, 16 16 C18 23, 22 23, 27 10' fill='none' stroke='%23FFFFFF' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <style>
+    /* ==========================================================================
+       1. Win UI 3 (Fluent Design System) Design Tokens & System Font Stacks
+       ========================================================================== */
+    :root {
+      --font-sans: "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "Yu Gothic UI", "Hiragino Kaku Gothic ProN", sans-serif;
+      --font-mono: "Cascadia Code", "Consolas", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      /* Light Theme Tokens */
+      --bg-base: #F3F3F3;
+      --bg-canvas: #FAFAFA;
+      --bg-acrylic: rgba(255, 255, 255, 0.78);
+      --bg-dialog: rgba(255, 255, 255, 0.92);
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #F9F9F9;
+      --bg-control: rgba(255, 255, 255, 0.75);
+      --bg-control-hover: rgba(246, 246, 246, 0.95);
+      --bg-control-pressed: rgba(238, 238, 238, 0.98);
+      --bg-subtle: rgba(0, 0, 0, 0.038);
+      --bg-subtle-hover: rgba(0, 0, 0, 0.062);
+      --bg-input: #FFFFFF;
+      --bg-input-focus: #FFFFFF;
+
+      --border-surface: rgba(0, 0, 0, 0.085);
+      --border-control: rgba(0, 0, 0, 0.12);
+      --border-control-bottom: rgba(0, 0, 0, 0.24);
+      --border-divider: rgba(0, 0, 0, 0.07);
+
+      --text-primary: rgba(0, 0, 0, 0.895);
+      --text-secondary: rgba(0, 0, 0, 0.61);
+      --text-tertiary: rgba(0, 0, 0, 0.45);
+      --text-on-accent: #FFFFFF;
+
+      --accent: #0067C0;
+      --accent-hover: #1975C5;
+      --accent-pressed: #3183CA;
+      --accent-subtle: rgba(0, 103, 192, 0.095);
+
+      --danger: #C42B1C;
+      --danger-bg: rgba(196, 43, 28, 0.1);
+
+      --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.08);
+      --shadow-flyout: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+      --shadow-panel: 0 4px 18px rgba(0, 0, 0, 0.065), 0 1px 3px rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+      /* Graph Canvas Tokens */
+      --grid-minor: rgba(0, 0, 0, 0.046);
+      --grid-major: rgba(0, 0, 0, 0.115);
+      --grid-axis: rgba(0, 0, 0, 0.66);
+      --grid-label: rgba(0, 0, 0, 0.68);
+      --grid-label-halo: rgba(250, 250, 250, 0.9);
+      --poi-fill: #6E6E6E;
+      --poi-stroke: #FFFFFF;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme Tokens */
+      --bg-base: #202020;
+      --bg-canvas: #191919;
+      --bg-acrylic: rgba(44, 44, 44, 0.78);
+      --bg-dialog: rgba(42, 42, 42, 0.92);
+      --bg-card: #2B2B2B;
+      --bg-card-hover: #323232;
+      --bg-control: rgba(255, 255, 255, 0.06);
+      --bg-control-hover: rgba(255, 255, 255, 0.095);
+      --bg-control-pressed: rgba(255, 255, 255, 0.04);
+      --bg-subtle: rgba(255, 255, 255, 0.045);
+      --bg-subtle-hover: rgba(255, 255, 255, 0.075);
+      --bg-input: rgba(255, 255, 255, 0.055);
+      --bg-input-focus: rgba(28, 28, 28, 0.94);
+
+      --border-surface: rgba(255, 255, 255, 0.085);
+      --border-control: rgba(255, 255, 255, 0.115);
+      --border-control-bottom: rgba(255, 255, 255, 0.22);
+      --border-divider: rgba(255, 255, 255, 0.08);
+
+      --text-primary: rgba(255, 255, 255, 0.95);
+      --text-secondary: rgba(255, 255, 255, 0.66);
+      --text-tertiary: rgba(255, 255, 255, 0.45);
+      --text-on-accent: #000000;
+
+      --accent: #60CDFF;
+      --accent-hover: #53BCEB;
+      --accent-pressed: #47ABD8;
+      --accent-subtle: rgba(96, 205, 255, 0.14);
+
+      --danger: #FF99A4;
+      --danger-bg: rgba(255, 153, 164, 0.14);
+
+      --shadow-dialog: 0 28px 72px rgba(0, 0, 0, 0.62), 0 4px 16px rgba(0, 0, 0, 0.36);
+      --shadow-flyout: 0 12px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.32), 0 1px 4px rgba(0, 0, 0, 0.2);
+      --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.22);
+
+      /* Graph Canvas Tokens */
+      --grid-minor: rgba(255, 255, 255, 0.045);
+      --grid-major: rgba(255, 255, 255, 0.115);
+      --grid-axis: rgba(255, 255, 255, 0.66);
+      --grid-label: rgba(255, 255, 255, 0.72);
+      --grid-label-halo: rgba(25, 25, 25, 0.9);
+      --poi-fill: #A6A6A6;
+      --poi-stroke: #1F1F1F;
+    }
+
+    /* ==========================================================================
+       2. Reset & Viewport Layout
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-sans);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.45;
+      user-select: none;
+    }
+
+    /* Fluent Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(128, 128, 128, 0.32);
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(128, 128, 128, 0.52);
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #graph-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      touch-action: none;
+    }
+    #graph-canvas.grabbing {
+      cursor: grabbing;
+    }
+    #graph-canvas.pointer {
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       3. Win UI 3 Acrylic Surfaces & Common Controls
+       ========================================================================== */
+    .acrylic-panel {
+      background: var(--bg-acrylic);
+      backdrop-filter: blur(24px) saturate(150%);
+      -webkit-backdrop-filter: blur(24px) saturate(150%);
+      border: 1px solid var(--border-surface);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .acrylic-flyout {
+      background: var(--bg-acrylic);
+      backdrop-filter: blur(28px) saturate(170%);
+      -webkit-backdrop-filter: blur(28px) saturate(170%);
+      border: 1px solid var(--border-surface);
+      box-shadow: var(--shadow-flyout);
+      border-radius: 10px;
+    }
+
+    /* Win UI 3 Standard Button */
+    .win-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-control);
+      border: 1px solid var(--border-control);
+      border-bottom-color: var(--border-control-bottom);
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.08s ease, border-color 0.12s ease;
+      white-space: nowrap;
+    }
+    .win-btn:hover {
+      background: var(--bg-control-hover);
+    }
+    .win-btn:active {
+      background: var(--bg-control-pressed);
+      transform: scale(0.985);
+    }
+
+    /* Win UI 3 Accent Button */
+    .win-btn-accent {
+      background: var(--accent);
+      color: var(--text-on-accent);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom-color: rgba(0, 0, 0, 0.25);
+    }
+    .win-btn-accent:hover {
+      background: var(--accent-hover);
+    }
+    .win-btn-accent:active {
+      background: var(--accent-pressed);
+    }
+
+    /* Win UI 3 Subtle / Icon Button */
+    .win-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
+      flex-shrink: 0;
+    }
+    .win-icon-btn:hover {
+      background: var(--bg-subtle-hover);
+    }
+    .win-icon-btn:active {
+      background: var(--bg-subtle);
+      transform: scale(0.95);
+    }
+    .win-icon-btn.active {
+      background: var(--accent-subtle);
+      color: var(--accent);
+    }
+
+    /* Pill Button with Icon + Label */
+    .win-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+    }
+    .win-pill-btn:hover {
+      background: var(--bg-subtle-hover);
+    }
+    .win-pill-btn:active {
+      background: var(--bg-subtle);
+    }
+
+    /* ==========================================================================
+       4. Left Sidebar (Graphia Expression List Panel)
+       ========================================================================== */
+    #sidebar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      bottom: 12px;
+      width: 380px;
+      max-width: calc(100vw - 24px);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    }
+    #sidebar.collapsed {
+      transform: translateX(calc(-100% - 24px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Sidebar Width Resizer */
+    #sidebar-resizer {
+      position: absolute;
+      top: 12px;
+      right: -4px;
+      bottom: 12px;
+      width: 8px;
+      cursor: ew-resize;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #sidebar-resizer::after {
+      content: '';
+      width: 3px;
+      height: 36px;
+      border-radius: 99px;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+    #sidebar-resizer:hover::after,
+    #sidebar-resizer.dragging::after {
+      background: var(--accent);
+    }
+
+    /* Floating Sidebar Open Pill (shown when collapsed) */
+    #sidebar-expand-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 19;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-12px);
+      transition: opacity 0.2s ease, transform 0.2s ease, background 0.12s ease;
+    }
+    #sidebar-expand-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    /* Sidebar Header */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 10px 10px 14px;
+      border-bottom: 1px solid var(--border-divider);
+      gap: 6px;
+    }
+    .app-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .app-logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0078D4 0%, #005A9E 100%);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 103, 192, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .app-logo-badge {
+      background: linear-gradient(135deg, #60CDFF 0%, #0078D4 100%);
+      color: #0B192C;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .app-title-stack {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+    .app-title {
+      font-weight: 600;
+      font-size: 15.5px;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+    .app-subtitle-tag {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar Action Bar (+ Add Expression & Presets) */
+    .sidebar-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-divider);
+    }
+
+    /* Custom Win UI 3 ComboBox / Select */
+    .win-select-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+    }
+    .win-select {
+      width: 100%;
+      height: 32px;
+      padding: 0 28px 0 10px;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-control);
+      border: 1px solid var(--border-control);
+      border-bottom-color: var(--border-control-bottom);
+      appearance: none;
+      cursor: pointer;
+      outline: none;
+      text-overflow: ellipsis;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .win-select:hover {
+      background: var(--bg-control-hover);
+    }
+    .win-select:focus {
+      border-color: var(--accent);
+    }
+    .win-select option {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+    .win-select-chevron {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-secondary);
+    }
+
+    /* Expression List Container */
+    #expression-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Individual Expression Card */
+    .expr-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-surface);
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .expr-card:hover {
+      border-color: var(--border-control);
+    }
+    .expr-card.selected {
+      border-color: rgba(0, 103, 192, 0.38);
+      box-shadow: 0 2px 8px rgba(0, 103, 192, 0.08);
+    }
+    [data-theme="dark"] .expr-card.selected {
+      border-color: rgba(96, 205, 255, 0.42);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .expr-main-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Color Swatch Button */
+    .color-toggle-btn {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--border-control);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    }
+    .color-toggle-btn:hover {
+      background: var(--bg-subtle-hover);
+      border-color: var(--accent);
+      transform: scale(1.08);
+    }
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+    }
+    .expr-card.curve-hidden .color-dot {
+      opacity: 0.35;
+    }
+    .expr-card.curve-hidden .expr-input {
+      opacity: 0.56;
+    }
+
+    .point-label-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .point-label-check input {
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Win UI 3 TextBox Wrapper with Center-Expanding Bottom Accent Line */
+    .win-textbox-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      border-radius: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-control);
+      border-bottom-color: var(--border-control-bottom);
+      overflow: hidden;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .win-textbox-wrap:hover {
+      background: var(--bg-card-hover);
+    }
+    .win-textbox-wrap:focus-within {
+      background: var(--bg-input-focus);
+      border-color: var(--border-control);
+    }
+    .win-textbox-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .win-textbox-wrap:focus-within::after {
+      transform: scaleX(1);
+    }
+    .win-textbox-wrap.has-error::after {
+      background: var(--danger);
+      transform: scaleX(1);
+    }
+
+    .expr-input {
+      width: 100%;
+      height: 34px;
+      padding: 0 30px 0 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      outline: none;
+      user-select: text;
+    }
+    .expr-input::placeholder {
+      color: var(--text-tertiary);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+    }
+
+    .expr-error-badge {
+      position: absolute;
+      right: 7px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+    }
+
+    .expr-sub-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      padding-left: 32px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .expr-type-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .param-range-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+    .mini-num-input {
+      width: 48px;
+      height: 22px;
+      padding: 0 4px;
+      border-radius: 4px;
+      border: 1px solid var(--border-control);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: center;
+      outline: none;
+      user-select: text;
+    }
+    .mini-num-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* ==========================================================================
+       5. Parameter Slider Cards (Win UI 3 Slider)
+       ========================================================================== */
+    .slider-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-surface);
+      border-radius: 8px;
+      padding: 9px 12px;
+      box-shadow: var(--shadow-card);
+    }
+    .slider-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .slider-label-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .slider-val-input {
+      width: 64px;
+      height: 24px;
+      padding: 0 6px;
+      border-radius: 5px;
+      border: 1px solid var(--border-control);
+      background: var(--bg-input);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 600;
+      text-align: right;
+      outline: none;
+      user-select: text;
+    }
+    .slider-val-input:focus {
+      border-color: var(--accent);
+    }
+    .slider-control-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slider-bound-input {
+      width: 44px;
+      height: 22px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: center;
+      outline: none;
+      user-select: text;
+      transition: border-color 0.12s ease, background 0.12s ease;
+    }
+    .slider-bound-input:hover,
+    .slider-bound-input:focus {
+      border-color: var(--border-control);
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    input[type="range"].win-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 4px;
+      border-radius: 99px;
+      background: var(--border-control-bottom);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"].win-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 4px solid var(--accent);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: transform 0.12s ease, border-width 0.12s ease;
+    }
+    input[type="range"].win-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+      border-width: 3.5px;
+    }
+    input[type="range"].win-slider::-webkit-slider-thumb:active {
+      transform: scale(0.96);
+      border-width: 5px;
+    }
+
+    /* ==========================================================================
+       6. Curve Style Flyout (Color Palette & Line Dash)
+       ========================================================================== */
+    #style-flyout {
+      position: fixed;
+      z-index: 60;
+      width: 212px;
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #style-flyout.open {
+      display: flex;
+      animation: flyoutFadeIn 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .flyout-section-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .palette-swatch {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease;
+    }
+    .palette-swatch:hover {
+      transform: scale(1.1);
+    }
+    .palette-swatch.active {
+      box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--accent);
+    }
+    .line-style-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .line-style-btn {
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background: var(--bg-control);
+      color: var(--text-primary);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .line-style-btn:hover {
+      background: var(--bg-control-hover);
+    }
+    .line-style-btn.active {
+      background: var(--accent-subtle);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ==========================================================================
+       7. Top-Right Utility Bar & Bottom-Right Floating Canvas Control Pill
+       ========================================================================== */
+    #top-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 4px;
+      border-radius: 10px;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border-divider);
+      margin: 0 2px;
+    }
+
+    /* Bottom-Right Floating Zoom / Reset / Export Pill */
+    #canvas-controls {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    #settings-flyout {
+      position: absolute;
+      top: 56px;
+      right: 12px;
+      width: 288px;
+      padding: 14px;
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #settings-flyout.open {
+      display: flex;
+      animation: flyoutFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .setting-label {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    /* Win UI 3 ToggleSwitch */
+    .win-switch {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      border-radius: 999px;
+      background: transparent;
+      border: 1px solid var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.16s ease, border-color 0.16s ease;
+      flex-shrink: 0;
+    }
+    .win-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), background 0.16s ease, width 0.12s ease;
+    }
+    .win-switch:hover::after {
+      width: 14px;
+    }
+    .win-switch.on {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .win-switch.on::after {
+      background: var(--text-on-accent);
+      transform: translateX(20px);
+    }
+    .win-switch.on:hover::after {
+      transform: translateX(18px);
+    }
+
+    /* Segmented Pill Selector */
+    .win-segmented {
+      display: inline-flex;
+      background: var(--bg-subtle);
+      padding: 2px;
+      border-radius: 6px;
+      border: 1px solid var(--border-surface);
+    }
+    .win-seg-btn {
+      height: 24px;
+      padding: 0 10px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+    .win-seg-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ==========================================================================
+       8. Bottom-Left Collapsible On-Screen Math Keypad
+       ========================================================================== */
+    #keypad-wrapper {
+      position: absolute;
+      bottom: 16px;
+      left: 404px;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      transition: left 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #keypad-panel {
+      padding: 10px;
+      border-radius: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      width: 364px;
+      max-width: calc(100vw - 24px);
+    }
+    #keypad-panel.open {
+      display: flex;
+      animation: flyoutFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .key-btn {
+      height: 34px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      border-bottom-color: var(--border-control-bottom);
+      background: var(--bg-control);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s ease, transform 0.06s ease;
+    }
+    .key-btn:hover {
+      background: var(--bg-control-hover);
+    }
+    .key-btn:active {
+      background: var(--bg-control-pressed);
+      transform: scale(0.95);
+    }
+    .key-btn.fn-key {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--accent-subtle);
+      border-color: transparent;
+    }
+    .key-btn.fn-key:hover {
+      filter: brightness(1.06);
+    }
+    .key-btn.action-key {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       9. Win UI 3 ContentDialog (Credits & Licenses Modal)
+       ========================================================================== */
+    #credits-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    #credits-backdrop.open {
+      display: flex;
+      animation: backdropFadeIn 0.18s ease;
+    }
+
+    #credits-dialog {
+      width: 620px;
+      max-width: 100%;
+      max-height: min(84vh, 720px);
+      border-radius: 12px;
+      background: var(--bg-dialog);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      border: 1px solid var(--border-surface);
+      box-shadow: var(--shadow-dialog);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: dialogScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border-divider);
+      gap: 12px;
+    }
+    .dialog-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dialog-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+    .dialog-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .dialog-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      user-select: text;
+    }
+
+    .credit-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-surface);
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-card);
+    }
+    .credit-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .credit-text {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .credit-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .credit-list li {
+      position: relative;
+      padding-left: 14px;
+      font-size: 12.8px;
+      line-height: 1.55;
+      color: var(--text-primary);
+    }
+    .credit-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .credit-list strong {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .credit-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .tech-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: var(--accent-subtle);
+      color: var(--accent);
+      border: 1px solid transparent;
+    }
+
+    .dialog-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border-divider);
+      gap: 12px;
+    }
+    .dialog-footer-note {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       10. Win UI 3 InfoBar Toast Notification
+       ========================================================================== */
+    #toast-infobar {
+      position: fixed;
+      bottom: 62px;
+      right: 16px;
+      z-index: 80;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #toast-infobar.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes flyoutFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes backdropFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes dialogScaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Responsive Adjustments for Mobile / Narrow Viewports */
+    @media (max-width: 768px) {
+      #sidebar {
+        width: calc(100vw - 24px);
+        max-height: 50vh;
+        bottom: auto;
+      }
+      #sidebar-resizer {
+        display: none;
+      }
+      #keypad-wrapper {
+        left: 12px !important;
+        bottom: 12px;
+      }
+      #canvas-controls {
+        bottom: 12px;
+        right: 12px;
+      }
+      #top-toolbar {
+        top: 12px;
+        right: 12px;
+      }
+      .win-pill-btn span {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- High-DPI Interactive Graph Canvas Container -->
+    <div id="canvas-container">
+      <canvas id="graph-canvas"></canvas>
+    </div>
+
+    <!-- Floating Pill to Re-open Collapsed Sidebar -->
+    <button id="sidebar-expand-btn" class="acrylic-panel" title="Graphia 数式パネルを開く" aria-label="Graphia 数式パネルを開く">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <span>Graphia</span>
+    </button>
+
+    <!-- Left Sidebar: Graphia Expression List Panel -->
+    <aside id="sidebar" class="acrylic-panel" aria-label="Graphia 数式パネル">
+      <div class="sidebar-header">
+        <div class="app-title-group">
+          <div class="app-logo-badge" aria-hidden="true">
+            <!-- Custom Original Geometric Coordinate Axis & Sine Wave Emblem -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h18M12 3v18" stroke-opacity="0.42" stroke-width="1.5" />
+              <path d="M3 17c3.5-8.5 6.5-8.5 9 0s5.5 8.5 9 0" />
+            </svg>
+          </div>
+          <div class="app-title-stack">
+            <span class="app-title">Graphia</span>
+            <span class="app-subtitle-tag">Graphing Calculator</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="sidebar-credits-btn" class="win-pill-btn" title="クレジットと使用技術・ライセンス情報" aria-label="クレジット">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>クレジット</span>
+          </button>
+          <button id="clear-all-btn" class="win-icon-btn" title="すべての数式をクリア" aria-label="すべてクリア">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+            </svg>
+          </button>
+          <button id="sidebar-collapse-btn" class="win-icon-btn" title="パネルを折りたたむ" aria-label="パネルを折りたたむ">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-toolbar">
+        <button id="add-expr-btn" class="win-btn win-btn-accent" title="新しい数式を追加">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>数式を追加</span>
+        </button>
+
+        <div class="win-select-wrap">
+          <select id="preset-select" class="win-select" aria-label="サンプルプリセットを選択">
+            <option value="" disabled selected>プリセットを選択...</option>
+            <option value="default">基本：正弦波・放物線・円（交点・極値）</option>
+            <option value="lissajous">媒介変数：リサジュー図形</option>
+            <option value="polar">極座標：バラ曲線とカージオイド</option>
+            <option value="implicit">陰関数：ハート曲線と楕円</option>
+            <option value="points">座標点：幾何学点と楕円プロット</option>
+            <option value="taylor">微積分：sin(x) のテイラー展開近似</option>
+          </select>
+          <svg class="win-select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Dynamic List of Expression Cards & Parameter Sliders -->
+      <div id="expression-list"></div>
+
+      <!-- Draggable Width Resizer -->
+      <div id="sidebar-resizer" title="ドラッグして幅を調整"></div>
+    </aside>
+
+    <!-- Curve Color & Line Style Popover Flyout -->
+    <div id="style-flyout" class="acrylic-flyout" role="dialog" aria-label="線のスタイル設定">
+      <div>
+        <div class="flyout-section-title">カラーパレット</div>
+        <div class="color-grid" id="color-palette-grid"></div>
+      </div>
+      <div>
+        <div class="flyout-section-title">線の種類</div>
+        <div class="line-style-row" id="line-style-row">
+          <button class="line-style-btn" data-dash="solid">実線</button>
+          <button class="line-style-btn" data-dash="dashed">破線</button>
+          <button class="line-style-btn" data-dash="dotted">点線</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top-Right Utility Bar (Theme, Credits, Settings) -->
+    <div id="top-toolbar" class="acrylic-panel" role="toolbar" aria-label="ユーティリティバー">
+      <button id="top-credits-btn" class="win-pill-btn" title="クレジットと使用技術・ライセンス情報" aria-label="クレジット">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>クレジット</span>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button id="quick-theme-btn" class="win-icon-btn" title="ライト / ダークテーマ切替" aria-label="テーマ切替">
+        <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg id="theme-icon-sun" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+      <button id="settings-toggle-btn" class="win-icon-btn" title="グラフ表示設定" aria-label="表示設定">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Bottom-Right Floating Canvas Control Pill (+ Zoom In, - Zoom Out, Reset, Export PNG) -->
+    <div id="canvas-controls" class="acrylic-panel" role="toolbar" aria-label="ズームと書き出し操作">
+      <button id="zoom-in-btn" class="win-icon-btn" title="ズームイン (+)" aria-label="ズームイン">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <button id="zoom-out-btn" class="win-icon-btn" title="ズームアウト (−)" aria-label="ズームアウト">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <button id="reset-view-btn" class="win-icon-btn" title="デフォルト表示に戻る" aria-label="デフォルト表示に戻る">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5"></path>
+          <path d="M5 9.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"></path>
+        </svg>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button id="quick-export-btn" class="win-icon-btn" title="画像として保存 (PNG)" aria-label="PNG画像として保存">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Settings Flyout Panel -->
+    <div id="settings-flyout" class="acrylic-flyout" role="dialog" aria-label="グラフ表示設定">
+      <div class="setting-row">
+        <span class="setting-label">グリッド線</span>
+        <button id="toggle-grid" class="win-switch on" role="switch" aria-checked="true"></button>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">補助目盛（副グリッド）</span>
+        <button id="toggle-minor-grid" class="win-switch on" role="switch" aria-checked="true"></button>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">特殊点（切片・極値・交点）</span>
+        <button id="toggle-poi" class="win-switch on" role="switch" aria-checked="true"></button>
+      </div>
+      <div style="height: 1px; background: var(--border-divider);"></div>
+      <div class="setting-row">
+        <span class="setting-label">角度単位</span>
+        <div class="win-segmented" id="angle-mode-seg">
+          <button class="win-seg-btn active" data-val="rad">ラジアン</button>
+          <button class="win-seg-btn" data-val="deg">度数法</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">テーマ</span>
+        <div class="win-segmented" id="theme-mode-seg">
+          <button class="win-seg-btn active" data-val="light">ライト</button>
+          <button class="win-seg-btn" data-val="dark">ダーク</button>
+        </div>
+      </div>
+      <div style="height: 1px; background: var(--border-divider);"></div>
+      <button id="export-png-btn" class="win-btn" style="width: 100%;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>高解像度 PNG で保存</span>
+      </button>
+    </div>
+
+    <!-- Bottom-Left On-Screen Math Keypad -->
+    <div id="keypad-wrapper">
+      <div id="keypad-panel" class="acrylic-flyout" aria-label="数式キーボード">
+        <div class="keypad-grid" id="keypad-grid"></div>
+      </div>
+      <button id="keypad-toggle-btn" class="win-btn acrylic-panel" style="height: 36px; border-radius: 9px;" title="数式キーボードの表示切替">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+          <line x1="6" y1="8" x2="6.01" y2="8"></line>
+          <line x1="10" y1="8" x2="10.01" y2="8"></line>
+          <line x1="14" y1="8" x2="14.01" y2="8"></line>
+          <line x1="18" y1="8" x2="18.01" y2="8"></line>
+          <line x1="8" y1="12" x2="8.01" y2="12"></line>
+          <line x1="12" y1="12" x2="12.01" y2="12"></line>
+          <line x1="16" y1="12" x2="16.01" y2="12"></line>
+          <line x1="7" y1="16" x2="17" y2="16"></line>
+        </svg>
+        <span id="keypad-toggle-label">数式キーパッド</span>
+      </button>
+    </div>
+
+    <!-- Win UI 3 ContentDialog: Credits & Licenses Modal -->
+    <div id="credits-backdrop" role="dialog" aria-modal="true" aria-labelledby="credits-dialog-title">
+      <div id="credits-dialog">
+        <div class="dialog-header">
+          <div class="dialog-header-left">
+            <div class="app-logo-badge" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12h18M12 3v18" stroke-opacity="0.42" stroke-width="1.5" />
+                <path d="M3 17c3.5-8.5 6.5-8.5 9 0s5.5 8.5 9 0" />
+              </svg>
+            </div>
+            <div>
+              <h2 id="credits-dialog-title" class="dialog-title">Graphia — クレジット・使用技術一覧</h2>
+              <p class="dialog-subtitle">Graphing Calculator · スタンドアロン単一ファイル構成</p>
+            </div>
+          </div>
+          <button id="credits-close-x" class="win-icon-btn" title="閉じる (Esc)" aria-label="閉じる">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="dialog-body">
+          <!-- Section 1: About Graphia -->
+          <section class="credit-section">
+            <h3 class="credit-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>アプリケーション概要 (About Graphia)</span>
+            </h3>
+            <p class="credit-text">
+              <strong>Graphia（グラフィア）</strong>は、ブラウザ上で滑らかに動作するオリジナル設計のインタラクティブ関数グラフ計算機・数学ビジュアライザーです。陽関数・陰関数・極座標・媒介変数曲線・座標点プロット・動的パラメータスライダーのリアルタイム描画に対応しています。
+            </p>
+          </section>
+
+          <!-- Section 2: Libraries & Dependencies -->
+          <section class="credit-section">
+            <h3 class="credit-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              <span>使用ライブラリ・依存関係 (Libraries &amp; Dependencies)</span>
+            </h3>
+            <ul class="credit-list">
+              <li>
+                <strong>外部JavaScriptライブラリ：なし（Zero External Dependencies）</strong><br />
+                サードパーティ製の数式評価ライブラリ、グラフ描画ライブラリ、UIフレームワークは一切使用せず、100% Pure HTML5 / CSS3 / Vanilla JavaScript (ES2023+) のみで独自実装されています。
+              </li>
+              <li>
+                <strong>アイコン・グラフィック素材：</strong><br />
+                アプリアイコンおよびすべてのUIボタンアイコンは、本アプリケーション用に独自設計したインラインSVGベクターグラフィックを使用しています（外部アイコンフォント・外部画像ファイル未使用）。
+              </li>
+              <li>
+                <strong>フォント：</strong><br />
+                各OS標準のシステムフォントスタック（Segoe UI Variable / Segoe UI / San Francisco / Yu Gothic UI / Hiragino Kaku Gothic ProN / Cascadia Code / Consolas）を参照しており、外部フォントCDNへの通信やフォントファイルの再配布は行っていません。
+              </li>
+              <li>
+                <strong>Web標準ブラウザAPI：</strong><br />
+                HTML5 Canvas 2D API（高DPIグラフ描画・PNG書き出し）、ResizeObserver API（ビューポートサイズ追従）、Pointer Events API（マウス・タッチ操作統合）。
+              </li>
+            </ul>
+            <div class="credit-badge-row">
+              <span class="tech-pill">Zero Dependencies</span>
+              <span class="tech-pill">HTML5 Canvas 2D</span>
+              <span class="tech-pill">ResizeObserver</span>
+              <span class="tech-pill">Pointer Events</span>
+              <span class="tech-pill">Inline SVG</span>
+            </div>
+          </section>
+
+          <!-- Section 3: Mathematical Algorithms -->
+          <section class="credit-section">
+            <h3 class="credit-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              <span>採用アルゴリズム・数学的手法 (Mathematical Algorithms)</span>
+            </h3>
+            <ul class="credit-list">
+              <li>
+                <strong>Recursive Descent Parser（再帰下降構文解析）：</strong><br />
+                独自の字句解析器と再帰下降パーサにより、暗黙の乗算（例：<code>2x</code>, <code>3sin(x)</code>, <code>(x+1)(x-1)</code>）や数学関数・定数を安全に構文解析して評価します。
+              </li>
+              <li>
+                <strong>Marching Squares Algorithm（マーチングスクエア法）：</strong><br />
+                陰関数方程式 <code>f(x, y) = g(x, y)</code> の等高線（ゼロ等値線）を線形補間付きグリッド走査によって高速かつ滑らかに抽出します。
+              </li>
+              <li>
+                <strong>Brent's Method &amp; Bisection Method（ブレント法・二分法ハイブリッド）：</strong><br />
+                関数のx切片および複数曲線間の交点を、符号変化区間から高精度に数値収束させて自動検出します。
+              </li>
+              <li>
+                <strong>Golden-section Search（黄金分割探索法）：</strong><br />
+                導関数を必要としない単峰性区間探索により、曲線の極大値・極小値を安定して特定します。
+              </li>
+            </ul>
+          </section>
+
+          <!-- Section 4: Privacy & Design Principles -->
+          <section class="credit-section">
+            <h3 class="credit-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span>プライバシーと設計指針 (Privacy &amp; Design Principles)</span>
+            </h3>
+            <ul class="credit-list">
+              <li>
+                <strong>完全ローカル動作・ゼロ通信：</strong><br />
+                すべての数式解析・数値計算・描画処理はご利用のブラウザ内のローカルメモリ上で完結します。外部サーバーへのデータ送信、アクセス解析、Cookieトラッキングは一切行いません。
+              </li>
+              <li>
+                <strong>UIデザイン設計：</strong><br />
+                モダンなデスクトップアプリの視覚原則（アクリル半透明質感、明確なタイポグラフィ階層、ライト／ダーク両テーマでのアクセシブルなコントラスト比）を参考に独自CSSで設計しています。
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="dialog-footer">
+          <span class="dialog-footer-note">Graphia Graphing Calculator · Standalone Edition</span>
+          <button id="credits-close-btn" class="win-btn win-btn-accent" style="min-width: 96px;">閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win UI 3 InfoBar Toast -->
+    <div id="toast-infobar" class="acrylic-flyout" role="status" aria-live="polite">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="9 12 11 14 15 10"></polyline>
+      </svg>
+      <span id="toast-text">保存しました</span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ========================================================================
+         1. Fluent Color Palette, Sample Presets & Application State
+         ======================================================================== */
+      const GRAPHIA_COLORS = [
+        { name: 'Fluent Blue',    hex: '#0067C0' },
+        { name: 'Crimson Red',    hex: '#D13438' },
+        { name: 'Emerald Green',  hex: '#0F7B0F' },
+        { name: 'Orchid Purple',  hex: '#8764B8' },
+        { name: 'Tangerine',      hex: '#D83B01' },
+        { name: 'Teal Cyan',      hex: '#008272' },
+        { name: 'Magenta Rose',   hex: '#C239B3' },
+        { name: 'Slate Indigo',   hex: '#4F6BED' }
+      ];
+
+      const PRESETS = {
+        default: {
+          viewport: { xMin: -8.5, xMax: 8.5, yMin: -5.2, yMax: 5.2 },
+          expressions: [
+            { text: 'y = a * sin(x)', color: '#0067C0', dash: 'solid', visible: true },
+            { text: 'y = 0.3 * x^2 - 1.6', color: '#D13438', dash: 'solid', visible: true },
+            { text: 'x^2 + y^2 = 9', color: '#0F7B0F', dash: 'dashed', visible: true }
+          ],
+          sliders: {
+            a: { value: 1.5, min: -5, max: 5, step: 0.1, playing: false, dir: 1 }
+          }
+        },
+        lissajous: {
+          viewport: { xMin: -5.5, xMax: 5.5, yMin: -4.2, yMax: 4.2 },
+          expressions: [
+            { text: '(3*sin(a*t + b), 3*sin(t))', color: '#8764B8', dash: 'solid', visible: true, tMin: 0, tMax: 6.2832 }
+          ],
+          sliders: {
+            a: { value: 3, min: 1, max: 8, step: 1, playing: false, dir: 1 },
+            b: { value: 1.57, min: 0, max: 6.28, step: 0.02, playing: true, dir: 1 }
+          }
+        },
+        polar: {
+          viewport: { xMin: -5.5, xMax: 5.5, yMin: -4.2, yMax: 4.2 },
+          expressions: [
+            { text: 'r = 3 * cos(k * theta)', color: '#008272', dash: 'solid', visible: true, tMin: 0, tMax: 6.2832 },
+            { text: 'r = 1.5 * (1 + cos(theta))', color: '#D83B01', dash: 'dashed', visible: true, tMin: 0, tMax: 6.2832 }
+          ],
+          sliders: {
+            k: { value: 4, min: 1, max: 8, step: 1, playing: false, dir: 1 }
+          }
+        },
+        implicit: {
+          viewport: { xMin: -4.8, xMax: 4.8, yMin: -3.5, yMax: 3.5 },
+          expressions: [
+            { text: '(x^2 + y^2 - 2.2)^3 - x^2 * y^3 = 0', color: '#D13438', dash: 'solid', visible: true },
+            { text: 'x^2 / 12 + y^2 / 5 = 1', color: '#0067C0', dash: 'dashed', visible: true }
+          ],
+          sliders: {}
+        },
+        points: {
+          viewport: { xMin: -6.5, xMax: 6.5, yMin: -4.2, yMax: 4.2 },
+          expressions: [
+            { text: 'x^2 / 16 + y^2 / 9 = 1', color: '#0067C0', dash: 'solid', visible: true },
+            { text: '(2.646, 0)', color: '#D13438', dash: 'solid', visible: true, showLabel: true },
+            { text: '(-2.646, 0)', color: '#D13438', dash: 'solid', visible: true, showLabel: true },
+            { text: '(a, 3 * sqrt(max(0, 1 - a^2/16)))', color: '#0F7B0F', dash: 'solid', visible: true, showLabel: true }
+          ],
+          sliders: {
+            a: { value: 2, min: -4, max: 4, step: 0.1, playing: false, dir: 1 }
+          }
+        },
+        taylor: {
+          viewport: { xMin: -7, xMax: 7, yMin: -3.8, yMax: 3.8 },
+          expressions: [
+            { text: 'y = sin(x)', color: '#0067C0', dash: 'solid', visible: true },
+            { text: 'y = x - x^3/6', color: '#D83B01', dash: 'dashed', visible: true },
+            { text: 'y = x - x^3/6 + x^5/120 - x^7/5040', color: '#0F7B0F', dash: 'solid', visible: true }
+          ],
+          sliders: {}
+        }
+      };
+
+      const state = {
+        theme: 'light',
+        angleMode: 'rad', // 'rad' | 'deg'
+        showGrid: true,
+        showMinorGrid: true,
+        showPOI: true,
+        sidebarCollapsed: false,
+        keypadOpen: false,
+        activeExprId: null,
+        styleTargetExprId: null,
+
+        viewport: { xMin: -8.5, xMax: 8.5, yMin: -5.2, yMax: 5.2 },
+
+        expressions: [],
+        sliders: {}, // key: paramName -> { name, value, min, max, step, playing, dir }
+
+        pois: [],
+        pinnedPois: [],
+        hoveredPoi: null,
+        tracerPoint: null,
+        hoveredExprId: null,
+        plottedSampleCache: [],
+        isDragging: false,
+        dragStart: null,
+        pinchState: null,
+        needsRender: true,
+        poisDirty: true
+      };
+
+      let nextExprUid = 1;
+
+      /* ========================================================================
+         2. Safe Recursive-Descent Math Tokenizer, Parser & Evaluator
+         ======================================================================== */
+      const BUILTIN_FUNCS = new Set([
+        'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
+        'sinh', 'cosh', 'tanh', 'sec', 'csc', 'cot',
+        'sqrt', 'cbrt', 'abs', 'log', 'ln', 'exp',
+        'floor', 'ceil', 'round', 'sign', 'max', 'min'
+      ]);
+
+      const BUILTIN_CONSTS = new Set(['pi', 'e', 'tau', 'theta']);
+
+      /**
+       * Converts |...| absolute value bars into abs(...) cleanly, supporting nesting.
+       */
+      function preprocessAbsBars(src) {
+        let out = '';
+        let openCount = 0;
+        for (let i = 0; i < src.length; i++) {
+          const ch = src[i];
+          if (ch === '|') {
+            const prev = i > 0 ? src[i - 1] : '';
+            const isClosing = openCount > 0 && /[0-9a-zA-Z_)\].πτθ²³]/.test(prev);
+            if (isClosing) {
+              out += ')';
+              openCount--;
+            } else {
+              out += 'abs(';
+              openCount++;
+            }
+          } else {
+            out += ch;
+          }
+        }
+        while (openCount > 0) {
+          out += ')';
+          openCount--;
+        }
+        return out;
+      }
+
+      /**
+       * Tokenizes a math string and inserts implicit multiplication tokens seamlessly.
+       */
+      function tokenizeMath(raw) {
+        let s = raw
+          .replace(/\s+/g, '')
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/[−–—]/g, '-')
+          .replace(/π/g, 'pi')
+          .replace(/τ/g, 'tau')
+          .replace(/θ/g, 'theta')
+          .replace(/²/g, '^2')
+          .replace(/³/g, '^3')
+          .replace(/√\(/g, 'sqrt(')
+          .replace(/√([0-9a-zA-Z.]+)/g, 'sqrt($1)');
+
+        s = preprocessAbsBars(s);
+
+        const rawTokens = [];
+        let i = 0;
+        while (i < s.length) {
+          const ch = s[i];
+
+          // Numbers
+          if (/[0-9.]/.test(ch)) {
+            let numStr = '';
+            let dotCount = 0;
+            while (i < s.length && /[0-9.]/.test(s[i])) {
+              if (s[i] === '.') dotCount++;
+              if (dotCount > 1) throw new Error('小数点の位置が不正です');
+              numStr += s[i++];
+            }
+            if (numStr === '.') throw new Error('数値が不正です');
+            if (i < s.length && (s[i] === 'e' || s[i] === 'E') && /[0-9+-]/.test(s[i + 1] || '')) {
+              numStr += s[i++];
+              if (s[i] === '+' || s[i] === '-') numStr += s[i++];
+              while (i < s.length && /[0-9]/.test(s[i])) numStr += s[i++];
+            }
+            rawTokens.push({ type: 'num', value: parseFloat(numStr) });
+            continue;
+          }
+
+          // Identifiers (functions, constants, single-letter variables/parameters)
+          if (/[a-zA-Z_]/.test(ch)) {
+            let word = '';
+            while (i < s.length && /[a-zA-Z_]/.test(s[i])) {
+              word += s[i++];
+            }
+            if (BUILTIN_FUNCS.has(word)) {
+              rawTokens.push({ type: 'func', value: word });
+            } else if (BUILTIN_CONSTS.has(word)) {
+              rawTokens.push({ type: 'ident', value: word });
+            } else {
+              // Greedy decomposition for implicit products like "ax", "asin", "2xy", "ksin"
+              let pos = 0;
+              while (pos < word.length) {
+                let matched = false;
+                const rem = word.slice(pos);
+                for (const fn of BUILTIN_FUNCS) {
+                  if (rem.startsWith(fn)) {
+                    rawTokens.push({ type: 'func', value: fn });
+                    pos += fn.length;
+                    matched = true;
+                    break;
+                  }
+                }
+                if (matched) continue;
+                for (const c of BUILTIN_CONSTS) {
+                  if (rem.startsWith(c)) {
+                    rawTokens.push({ type: 'ident', value: c });
+                    pos += c.length;
+                    matched = true;
+                    break;
+                  }
+                }
+                if (matched) continue;
+                rawTokens.push({ type: 'ident', value: word[pos] });
+                pos++;
+              }
+            }
+            continue;
+          }
+
+          // Operators & Parentheses
+          if ('+-*/^(),'.includes(ch)) {
+            rawTokens.push({ type: 'op', value: ch });
+            i++;
+            continue;
+          }
+
+          throw new Error(`未対応の文字: "${ch}"`);
+        }
+
+        // Insert implicit multiplication '*'
+        const tokens = [];
+        for (let k = 0; k < rawTokens.length; k++) {
+          const cur = rawTokens[k];
+          tokens.push(cur);
+          if (k + 1 < rawTokens.length) {
+            const nxt = rawTokens[k + 1];
+            const curEndsValue =
+              cur.type === 'num' ||
+              cur.type === 'ident' ||
+              (cur.type === 'op' && cur.value === ')');
+            const nxtStartsValue =
+              nxt.type === 'num' ||
+              nxt.type === 'ident' ||
+              nxt.type === 'func' ||
+              (nxt.type === 'op' && nxt.value === '(');
+
+            if (curEndsValue && nxtStartsValue) {
+              tokens.push({ type: 'op', value: '*' });
+            }
+          }
+        }
+        return tokens;
+      }
+
+      // Runtime Math Function Library (supports Radian / Degree switching)
+      const MATH_RUNTIME = {
+        sin: (v) => Math.sin(state.angleMode === 'deg' ? (v * Math.PI) / 180 : v),
+        cos: (v) => Math.cos(state.angleMode === 'deg' ? (v * Math.PI) / 180 : v),
+        tan: (v) => Math.tan(state.angleMode === 'deg' ? (v * Math.PI) / 180 : v),
+        sec: (v) => 1 / Math.cos(state.angleMode === 'deg' ? (v * Math.PI) / 180 : v),
+        csc: (v) => 1 / Math.sin(state.angleMode === 'deg' ? (v * Math.PI) / 180 : v),
+        cot: (v) => 1 / Math.tan(state.angleMode === 'deg' ? (v * Math.PI) / 180 : v),
+        asin: (v) => {
+          const r = Math.asin(v);
+          return state.angleMode === 'deg' ? (r * 180) / Math.PI : r;
+        },
+        acos: (v) => {
+          const r = Math.acos(v);
+          return state.angleMode === 'deg' ? (r * 180) / Math.PI : r;
+        },
+        atan: (v) => {
+          const r = Math.atan(v);
+          return state.angleMode === 'deg' ? (r * 180) / Math.PI : r;
+        },
+        sinh: Math.sinh,
+        cosh: Math.cosh,
+        tanh: Math.tanh,
+        sqrt: Math.sqrt,
+        cbrt: Math.cbrt,
+        abs: Math.abs,
+        log: Math.log10,
+        ln: Math.log,
+        exp: Math.exp,
+        floor: Math.floor,
+        ceil: Math.ceil,
+        round: Math.round,
+        sign: Math.sign,
+        max: Math.max,
+        min: Math.min
+      };
+
+      /**
+       * Safe Recursive-Descent Parser producing a closure-based AST evaluator (no eval / new Function).
+       */
+      function compileTokensToEvaluator(tokens) {
+        let idx = 0;
+        const symbols = new Set();
+
+        const peek = () => tokens[idx] || null;
+        const consume = () => tokens[idx++] || null;
+
+        function parseExpression() {
+          let leftFn = parseTerm();
+          while (peek() && peek().type === 'op' && (peek().value === '+' || peek().value === '-')) {
+            const op = consume().value;
+            const rightFn = parseTerm();
+            const prevLeft = leftFn;
+            leftFn = op === '+'
+              ? (ctx) => prevLeft(ctx) + rightFn(ctx)
+              : (ctx) => prevLeft(ctx) - rightFn(ctx);
+          }
+          return leftFn;
+        }
+
+        function parseTerm() {
+          let leftFn = parseUnary();
+          while (peek() && peek().type === 'op' && (peek().value === '*' || peek().value === '/')) {
+            const op = consume().value;
+            const rightFn = parseUnary();
+            const prevLeft = leftFn;
+            leftFn = op === '*'
+              ? (ctx) => prevLeft(ctx) * rightFn(ctx)
+              : (ctx) => prevLeft(ctx) / rightFn(ctx);
+          }
+          return leftFn;
+        }
+
+        function parseUnary() {
+          if (peek() && peek().type === 'op' && (peek().value === '+' || peek().value === '-')) {
+            const op = consume().value;
+            const operandFn = parseUnary();
+            return op === '-' ? (ctx) => -operandFn(ctx) : operandFn;
+          }
+          return parsePower();
+        }
+
+        function parsePower() {
+          const baseFn = parsePrimary();
+          if (peek() && peek().type === 'op' && peek().value === '^') {
+            consume();
+            const expFn = parseUnary();
+            return (ctx) => Math.pow(baseFn(ctx), expFn(ctx));
+          }
+          return baseFn;
+        }
+
+        function parsePrimary() {
+          const tok = peek();
+          if (!tok) throw new Error('式が途中で終わっています');
+
+          if (tok.type === 'num') {
+            consume();
+            const val = tok.value;
+            return () => val;
+          }
+
+          if (tok.type === 'ident') {
+            consume();
+            const name = tok.value;
+            if (name === 'pi') return () => Math.PI;
+            if (name === 'e') return () => Math.E;
+            if (name === 'tau') return () => 2 * Math.PI;
+            symbols.add(name);
+            return (ctx) => ctx[name];
+          }
+
+          if (tok.type === 'func') {
+            const fnName = consume().value;
+            const impl = MATH_RUNTIME[fnName];
+            let argFns;
+            if (peek() && peek().type === 'op' && peek().value === '(') {
+              consume();
+              argFns = [parseExpression()];
+              while (peek() && peek().type === 'op' && peek().value === ',') {
+                consume();
+                argFns.push(parseExpression());
+              }
+              if (!peek() || peek().value !== ')') throw new Error('閉じ括弧 ")" が不足しています');
+              consume();
+            } else {
+              argFns = [parseUnary()];
+            }
+            if (argFns.length === 1) {
+              const a0 = argFns[0];
+              return (ctx) => impl(a0(ctx));
+            }
+            return (ctx) => impl(...argFns.map((f) => f(ctx)));
+          }
+
+          if (tok.type === 'op' && tok.value === '(') {
+            consume();
+            const innerFn = parseExpression();
+            if (!peek() || peek().value !== ')') throw new Error('閉じ括弧 ")" が不足しています');
+            consume();
+            return innerFn;
+          }
+
+          throw new Error(`予期しないトークン: "${tok.value}"`);
+        }
+
+        const evalFn = parseExpression();
+        if (idx < tokens.length) {
+          throw new Error(`余分な文字があります: "${tokens[idx].value}"`);
+        }
+        return { evalFn, symbols };
+      }
+
+      /**
+       * Parses a user-entered equation and classifies its mathematical form.
+       */
+      function parseUserEquation(rawText) {
+        const trimmed = rawText.trim();
+        if (!trimmed) {
+          return { valid: true, empty: true, kind: 'empty', params: [] };
+        }
+
+        try {
+          // 1. Check Parametric curve (x(t), y(t)) OR Coordinate Point (x0, y0)
+          if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+            let depth = 0;
+            let commaIdx = -1;
+            let validOuter = true;
+            for (let i = 0; i < trimmed.length; i++) {
+              const c = trimmed[i];
+              if (c === '(') depth++;
+              else if (c === ')') {
+                depth--;
+                if (depth === 0 && i < trimmed.length - 1) {
+                  validOuter = false;
+                  break;
+                }
+              } else if (c === ',' && depth === 1 && commaIdx === -1) {
+                commaIdx = i;
+              }
+            }
+            if (validOuter && commaIdx > 0) {
+              const xPart = trimmed.slice(1, commaIdx);
+              const yPart = trimmed.slice(commaIdx + 1, -1);
+              const cx = compileTokensToEvaluator(tokenizeMath(xPart));
+              const cy = compileTokensToEvaluator(tokenizeMath(yPart));
+              const allSyms = new Set([...cx.symbols, ...cy.symbols]);
+              const params = [...allSyms].filter((s) => !['t', 'x', 'y', 'r', 'theta'].includes(s));
+
+              if (allSyms.has('t')) {
+                return {
+                  valid: true,
+                  kind: 'parametric',
+                  typeLabel: '媒介変数 (t)',
+                  evalParam: (ctx) => ({ x: cx.evalFn(ctx), y: cy.evalFn(ctx) }),
+                  params
+                };
+              } else if (!allSyms.has('x') && !allSyms.has('y') && !allSyms.has('r') && !allSyms.has('theta')) {
+                return {
+                  valid: true,
+                  kind: 'point',
+                  typeLabel: '座標点 (x, y)',
+                  evalPoint: (ctx) => ({ x: cx.evalFn(ctx), y: cy.evalFn(ctx) }),
+                  params
+                };
+              }
+            }
+          }
+
+          const eqParts = trimmed.split('=');
+          if (eqParts.length > 2) {
+            throw new Error('等号 "=" が多すぎます');
+          }
+
+          if (eqParts.length === 1) {
+            // Bare expression: e.g. "2x + 1" or "sin(x)" -> y = f(x)
+            const comp = compileTokensToEvaluator(tokenizeMath(eqParts[0]));
+            if (comp.symbols.has('y')) {
+              throw new Error('方程式には "=" を含めてください（例: x^2 + y^2 = 9）');
+            }
+            const params = [...comp.symbols].filter((s) => !['x', 'y', 'r', 't', 'theta'].includes(s));
+            return {
+              valid: true,
+              kind: 'explicit_y',
+              typeLabel: '陽関数 y=f(x)',
+              evalY: comp.evalFn,
+              params
+            };
+          }
+
+          const lhs = eqParts[0].trim();
+          const rhs = eqParts[1].trim();
+          if (!lhs || !rhs) throw new Error('左辺または右辺が空です');
+
+          // 2. Polar form: r = f(theta)
+          if (lhs === 'r') {
+            const comp = compileTokensToEvaluator(tokenizeMath(rhs));
+            const params = [...comp.symbols].filter((s) => !['theta', 'x', 'y', 'r', 't'].includes(s));
+            return {
+              valid: true,
+              kind: 'polar',
+              typeLabel: '極座標 r=f(θ)',
+              evalR: comp.evalFn,
+              params
+            };
+          }
+
+          // 3. Explicit y = f(x) or f(x) = ...
+          const isFuncOfXHeader = lhs === 'y' || /^[fghp]\(x\)$/.test(lhs);
+          if (isFuncOfXHeader) {
+            const comp = compileTokensToEvaluator(tokenizeMath(rhs));
+            if (!comp.symbols.has('y')) {
+              const params = [...comp.symbols].filter((s) => !['x', 'y', 'r', 't', 'theta'].includes(s));
+              return {
+                valid: true,
+                kind: 'explicit_y',
+                typeLabel: '陽関数 y=f(x)',
+                evalY: comp.evalFn,
+                params
+              };
+            }
+          }
+
+          // 4. Function of y: x = g(y)
+          if (lhs === 'x') {
+            const comp = compileTokensToEvaluator(tokenizeMath(rhs));
+            if (!comp.symbols.has('x')) {
+              const params = [...comp.symbols].filter((s) => !['x', 'y', 'r', 't', 'theta'].includes(s));
+              return {
+                valid: true,
+                kind: 'explicit_x',
+                typeLabel: '関数 x=g(y)',
+                evalX: comp.evalFn,
+                params
+              };
+            }
+          }
+
+          // 5. Parameter Variable Assignment: e.g. "a = 1.5"
+          if (/^[a-zA-Z]$/.test(lhs) && !['x', 'y', 'r', 't', 'e'].includes(lhs)) {
+            const comp = compileTokensToEvaluator(tokenizeMath(rhs));
+            const hasGraphVar = ['x', 'y', 'r', 't', 'theta'].some((v) => comp.symbols.has(v));
+            if (!hasGraphVar && !comp.symbols.has(lhs)) {
+              const params = [...comp.symbols].filter((s) => !['x', 'y', 'r', 't', 'theta'].includes(s));
+              return {
+                valid: true,
+                kind: 'assignment',
+                typeLabel: `変数定義 (${lhs})`,
+                varName: lhs,
+                evalValue: comp.evalFn,
+                params: [lhs, ...params]
+              };
+            }
+          }
+
+          // 6. General Implicit Equation: F(x, y) = LHS - RHS = 0
+          const cLhs = compileTokensToEvaluator(tokenizeMath(lhs));
+          const cRhs = compileTokensToEvaluator(tokenizeMath(rhs));
+          const allSyms = new Set([...cLhs.symbols, ...cRhs.symbols]);
+          const params = [...allSyms].filter((s) => !['x', 'y', 'r', 't', 'theta'].includes(s));
+
+          return {
+            valid: true,
+            kind: 'implicit',
+            typeLabel: '陰関数 F(x,y)=0',
+            evalImplicit: (ctx) => cLhs.evalFn(ctx) - cRhs.evalFn(ctx),
+            params
+          };
+        } catch (err) {
+          return {
+            valid: false,
+            error: err.message || '数式の構文エラーです',
+            params: []
+          };
+        }
+      }
+
+      /* ========================================================================
+         3. Numerical Solvers: Brent's Method, Golden-Section Search & POIs
+         ======================================================================== */
+      function buildEvalContext() {
+        const ctx = { x: 0, y: 0, t: 0, theta: 0 };
+        for (const key in state.sliders) {
+          ctx[key] = state.sliders[key].value;
+        }
+        return ctx;
+      }
+
+      /**
+       * Brent's Method + Bisection fallback root finder on [a, b] where f(a)*f(b) <= 0.
+       */
+      function solveRootBrent(fn, x1, x2) {
+        let a = x1;
+        let b = x2;
+        let c = x2;
+        let d = 0;
+        let e = 0;
+        let fa = fn(a);
+        let fb = fn(b);
+        if (!Number.isFinite(fa) || !Number.isFinite(fb)) return null;
+        if (Math.abs(fa) < 1e-11) return a;
+        if (Math.abs(fb) < 1e-11) return b;
+        if (fa * fb > 0) return null;
+
+        let fc = fb;
+        const EPS = 1e-13;
+        const TOL = 1e-10;
+
+        for (let iter = 0; iter < 50; iter++) {
+          if ((fb > 0 && fc > 0) || (fb < 0 && fc < 0)) {
+            c = a;
+            fc = fa;
+            e = d = b - a;
+          }
+          if (Math.abs(fc) < Math.abs(fb)) {
+            a = b;
+            b = c;
+            c = a;
+            fa = fb;
+            fb = fc;
+            fc = fa;
+          }
+
+          const tol1 = 2.0 * EPS * Math.abs(b) + 0.5 * TOL;
+          const xm = 0.5 * (c - b);
+          if (Math.abs(xm) <= tol1 || fb === 0.0) {
+            return Math.abs(fb) < 1e-3 ? b : null;
+          }
+
+          if (Math.abs(e) >= tol1 && Math.abs(fa) > Math.abs(fb)) {
+            const s = fb / fa;
+            let p, q;
+            if (a === c) {
+              p = 2.0 * xm * s;
+              q = 1.0 - s;
+            } else {
+              q = fa / fc;
+              const r = fb / fc;
+              p = s * (2.0 * xm * q * (q - r) - (b - a) * (r - 1.0));
+              q = (q - 1.0) * (r - 1.0) * (s - 1.0);
+            }
+            if (p > 0.0) q = -q;
+            p = Math.abs(p);
+            const min1 = 3.0 * xm * q - Math.abs(tol1 * q);
+            const min2 = Math.abs(e * q);
+            if (2.0 * p < (min1 < min2 ? min1 : min2)) {
+              e = d;
+              d = p / q;
+            } else {
+              d = xm;
+              e = d;
+            }
+          } else {
+            d = xm;
+            e = d;
+          }
+
+          a = b;
+          fa = fb;
+          if (Math.abs(d) > tol1) {
+            b += d;
+          } else {
+            b += xm >= 0 ? Math.abs(tol1) : -Math.abs(tol1);
+          }
+          fb = fn(b);
+          if (!Number.isFinite(fb)) return null;
+        }
+        return Math.abs(fb) < 1e-3 ? b : null;
+      }
+
+      /**
+       * Golden-section search for local extremum on [a, b].
+       */
+      function solveExtremum1D(fn, a, b, isMax) {
+        const phi = (Math.sqrt(5) - 1) / 2;
+        let x1 = b - phi * (b - a);
+        let x2 = a + phi * (b - a);
+        let f1 = fn(x1);
+        let f2 = fn(x2);
+        if (!Number.isFinite(f1) || !Number.isFinite(f2)) return null;
+
+        for (let iter = 0; iter < 40; iter++) {
+          const cond = isMax ? f1 > f2 : f1 < f2;
+          if (cond) {
+            b = x2;
+            x2 = x1;
+            f2 = f1;
+            x1 = b - phi * (b - a);
+            f1 = fn(x1);
+          } else {
+            a = x1;
+            x1 = x2;
+            f1 = f2;
+            x2 = a + phi * (b - a);
+            f2 = fn(x2);
+          }
+          if (!Number.isFinite(f1) || !Number.isFinite(f2)) return null;
+        }
+        const xOpt = 0.5 * (a + b);
+        const yOpt = fn(xOpt);
+        if (!Number.isFinite(yOpt)) return null;
+        return { x: xOpt, y: yOpt };
+      }
+
+      /**
+       * Computes Points of Interest (x-intercepts, y-intercepts, local extrema, intersections)
+       * for all visible explicit functions in the current viewport.
+       */
+      function computeAllPOIs() {
+        const pois = [];
+        if (!state.showPOI) {
+          state.pois = pois;
+          return;
+        }
+
+        const { xMin, xMax, yMin, yMax } = state.viewport;
+        const xSpan = xMax - xMin;
+        const ySpan = yMax - yMin;
+        const ctx = buildEvalContext();
+
+        const visibleExplicitY = state.expressions.filter(
+          (e) => e.visible && e.parsed && e.parsed.valid && e.parsed.kind === 'explicit_y'
+        );
+
+        const pushUniquePOI = (pt) => {
+          if (!Number.isFinite(pt.x) || !Number.isFinite(pt.y)) return;
+          if (pt.x < xMin - xSpan * 0.05 || pt.x > xMax + xSpan * 0.05) return;
+          if (pt.y < yMin - ySpan * 0.05 || pt.y > yMax + ySpan * 0.05) return;
+          const tolX = xSpan * 0.008;
+          const tolY = ySpan * 0.008;
+          const exists = pois.some(
+            (p) => Math.abs(p.x - pt.x) < tolX && Math.abs(p.y - pt.y) < tolY
+          );
+          if (!exists) pois.push(pt);
+        };
+
+        const SAMPLES = 240;
+        const dx = xSpan / SAMPLES;
+
+        // 1. Roots, Y-intercepts, and Extrema for each y = f(x)
+        for (const expr of visibleExplicitY) {
+          const f = (x) => {
+            ctx.x = x;
+            return expr.parsed.evalY(ctx);
+          };
+
+          if (xMin <= 0 && xMax >= 0) {
+            const y0 = f(0);
+            if (Number.isFinite(y0)) {
+              pushUniquePOI({ x: 0, y: y0, type: 'y切片', exprId: expr.id });
+            }
+          }
+
+          let prevX = xMin;
+          let prevY = f(prevX);
+          let prevSlope = null;
+
+          for (let i = 1; i <= SAMPLES; i++) {
+            const curX = xMin + i * dx;
+            const curY = f(curX);
+
+            if (Number.isFinite(prevY) && Number.isFinite(curY)) {
+              if (prevY === 0) {
+                pushUniquePOI({ x: prevX, y: 0, type: 'x切片', exprId: expr.id });
+              } else if (prevY * curY < 0 && Math.abs(curY - prevY) < ySpan * 4) {
+                const rootX = solveRootBrent(f, prevX, curX);
+                if (rootX !== null) {
+                  pushUniquePOI({ x: rootX, y: 0, type: 'x切片', exprId: expr.id });
+                }
+              }
+
+              const slope = curY - prevY;
+              if (prevSlope !== null && prevSlope * slope < 0 && Math.abs(slope) < ySpan * 2) {
+                const isMax = prevSlope > 0 && slope < 0;
+                const ext = solveExtremum1D(f, prevX - dx, curX, isMax);
+                if (ext) {
+                  pushUniquePOI({
+                    x: ext.x,
+                    y: ext.y,
+                    type: isMax ? '極大値' : '極小値',
+                    exprId: expr.id
+                  });
+                }
+              }
+              prevSlope = slope;
+            } else {
+              prevSlope = null;
+            }
+
+            prevX = curX;
+            prevY = curY;
+          }
+        }
+
+        // 2. Intersections between pairs of visible y = f(x) curves
+        for (let i = 0; i < visibleExplicitY.length; i++) {
+          for (let j = i + 1; j < visibleExplicitY.length; j++) {
+            const e1 = visibleExplicitY[i];
+            const e2 = visibleExplicitY[j];
+            const diffFn = (x) => {
+              ctx.x = x;
+              return e1.parsed.evalY(ctx) - e2.parsed.evalY(ctx);
+            };
+
+            let prevX = xMin;
+            let prevD = diffFn(prevX);
+            for (let k = 1; k <= SAMPLES; k++) {
+              const curX = xMin + k * dx;
+              const curD = diffFn(curX);
+              if (Number.isFinite(prevD) && Number.isFinite(curD)) {
+                if (prevD * curD <= 0 && Math.abs(curD - prevD) < ySpan * 4) {
+                  const ix = solveRootBrent(diffFn, prevX, curX);
+                  if (ix !== null) {
+                    ctx.x = ix;
+                    const iy = e1.parsed.evalY(ctx);
+                    if (Number.isFinite(iy)) {
+                      pushUniquePOI({
+                        x: ix,
+                        y: iy,
+                        type: '交点',
+                        exprId: e1.id,
+                        exprId2: e2.id
+                      });
+                    }
+                  }
+                }
+              }
+              prevX = curX;
+              prevD = curD;
+            }
+          }
+        }
+
+        state.pois = pois;
+        state.poisDirty = false;
+      }
+
+      /* ========================================================================
+         4. High-DPI Canvas 2D Renderer & Export Engine
+         ======================================================================== */
+      const canvasContainer = document.getElementById('canvas-container');
+      const canvas = document.getElementById('graph-canvas');
+      const ctx2d = canvas.getContext('2d');
+
+      function mathToScreen(x, y, width, height, vp = state.viewport) {
+        const sx = ((x - vp.xMin) / (vp.xMax - vp.xMin)) * width;
+        const sy = height - ((y - vp.yMin) / (vp.yMax - vp.yMin)) * height;
+        return { sx, sy };
+      }
+
+      function screenToMath(sx, sy, width, height, vp = state.viewport) {
+        const x = vp.xMin + (sx / width) * (vp.xMax - vp.xMin);
+        const y = vp.yMin + ((height - sy) / height) * (vp.yMax - vp.yMin);
+        return { x, y };
+      }
+
+      function computeGridStep(span, pixels) {
+        const targetPx = 96;
+        const rawStep = (span * targetPx) / Math.max(pixels, 100);
+        const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const norm = rawStep / mag;
+        let step;
+        let subDiv = 5;
+        if (norm < 1.5) {
+          step = 1 * mag;
+          subDiv = 5;
+        } else if (norm < 3.5) {
+          step = 2 * mag;
+          subDiv = 4;
+        } else if (norm < 7.5) {
+          step = 5 * mag;
+          subDiv = 5;
+        } else {
+          step = 10 * mag;
+          subDiv = 5;
+        }
+        return { major: step, minor: step / subDiv };
+      }
+
+      function formatAxisNumber(num, step) {
+        if (Math.abs(num) < step * 1e-6) return '0';
+        const decimals = Math.max(0, -Math.floor(Math.log10(step)) + 1);
+        const fixed = Number(num.toFixed(Math.min(decimals, 8)));
+        if (Math.abs(fixed) >= 1e6 || (Math.abs(fixed) > 0 && Math.abs(fixed) < 1e-4)) {
+          return fixed.toExponential(2);
+        }
+        return String(fixed);
+      }
+
+      function formatCoordDisplay(n) {
+        if (Math.abs(n) < 1e-9) return '0';
+        const rounded = Math.round(n * 1000) / 1000;
+        return Object.is(rounded, -0) ? '0' : String(rounded);
+      }
+
+      function applyLineDash(context, dashType) {
+        if (dashType === 'dashed') context.setLineDash([9, 6]);
+        else if (dashType === 'dotted') context.setLineDash([2.5, 5]);
+        else context.setLineDash([]);
+      }
+
+      function renderGraphToContext(targetCtx, width, height, options = { isExport: false }) {
+        const styles = getComputedStyle(document.documentElement);
+        const bgCanvas = styles.getPropertyValue('--bg-canvas').trim();
+        const gridMinorColor = styles.getPropertyValue('--grid-minor').trim();
+        const gridMajorColor = styles.getPropertyValue('--grid-major').trim();
+        const gridAxisColor = styles.getPropertyValue('--grid-axis').trim();
+        const gridLabelColor = styles.getPropertyValue('--grid-label').trim();
+        const gridHaloColor = styles.getPropertyValue('--grid-label-halo').trim();
+        const poiFill = styles.getPropertyValue('--poi-fill').trim();
+        const poiStroke = styles.getPropertyValue('--poi-stroke').trim();
+        const accentColor = styles.getPropertyValue('--accent').trim();
+
+        const vp = state.viewport;
+        const xSpan = vp.xMax - vp.xMin;
+        const ySpan = vp.yMax - vp.yMin;
+
+        // 1. Background Fill
+        targetCtx.fillStyle = bgCanvas;
+        targetCtx.fillRect(0, 0, width, height);
+
+        // 2. Dynamic Grid & Axes
+        const xGrid = computeGridStep(xSpan, width);
+        const yGrid = computeGridStep(ySpan, height);
+
+        if (state.showGrid && state.showMinorGrid) {
+          targetCtx.strokeStyle = gridMinorColor;
+          targetCtx.lineWidth = 1;
+          targetCtx.beginPath();
+
+          const firstMinorX = Math.floor(vp.xMin / xGrid.minor) * xGrid.minor;
+          for (let x = firstMinorX; x <= vp.xMax; x += xGrid.minor) {
+            const { sx } = mathToScreen(x, 0, width, height, vp);
+            const px = Math.round(sx) + 0.5;
+            targetCtx.moveTo(px, 0);
+            targetCtx.lineTo(px, height);
+          }
+
+          const firstMinorY = Math.floor(vp.yMin / yGrid.minor) * yGrid.minor;
+          for (let y = firstMinorY; y <= vp.yMax; y += yGrid.minor) {
+            const { sy } = mathToScreen(0, y, width, height, vp);
+            const py = Math.round(sy) + 0.5;
+            targetCtx.moveTo(0, py);
+            targetCtx.lineTo(width, py);
+          }
+          targetCtx.stroke();
+        }
+
+        if (state.showGrid) {
+          targetCtx.strokeStyle = gridMajorColor;
+          targetCtx.lineWidth = 1;
+          targetCtx.beginPath();
+
+          const firstMajorX = Math.floor(vp.xMin / xGrid.major) * xGrid.major;
+          for (let x = firstMajorX; x <= vp.xMax; x += xGrid.major) {
+            const { sx } = mathToScreen(x, 0, width, height, vp);
+            const px = Math.round(sx) + 0.5;
+            targetCtx.moveTo(px, 0);
+            targetCtx.lineTo(px, height);
+          }
+
+          const firstMajorY = Math.floor(vp.yMin / yGrid.major) * yGrid.major;
+          for (let y = firstMajorY; y <= vp.yMax; y += yGrid.major) {
+            const { sy } = mathToScreen(0, y, width, height, vp);
+            const py = Math.round(sy) + 0.5;
+            targetCtx.moveTo(0, py);
+            targetCtx.lineTo(width, py);
+          }
+          targetCtx.stroke();
+        }
+
+        // Principal X and Y Axes
+        const origin = mathToScreen(0, 0, width, height, vp);
+        targetCtx.strokeStyle = gridAxisColor;
+        targetCtx.lineWidth = 1.6;
+        targetCtx.beginPath();
+        if (origin.sx >= -2 && origin.sx <= width + 2) {
+          const ax = Math.round(origin.sx) + 0.5;
+          targetCtx.moveTo(ax, 0);
+          targetCtx.lineTo(ax, height);
+        }
+        if (origin.sy >= -2 && origin.sy <= height + 2) {
+          const ay = Math.round(origin.sy) + 0.5;
+          targetCtx.moveTo(0, ay);
+          targetCtx.lineTo(width, ay);
+        }
+        targetCtx.stroke();
+
+        // Axis Numeric Labels
+        targetCtx.font = '500 11px "Cascadia Code", "Consolas", monospace';
+        targetCtx.lineJoin = 'round';
+        targetCtx.lineWidth = 3;
+
+        const labelYPos = Math.min(Math.max(origin.sy + 15, 16), height - 8);
+        const firstLabelX = Math.floor(vp.xMin / xGrid.major) * xGrid.major;
+        targetCtx.textAlign = 'center';
+        targetCtx.textBaseline = 'alphabetic';
+
+        for (let x = firstLabelX; x <= vp.xMax; x += xGrid.major) {
+          if (Math.abs(x) < xGrid.major * 1e-5) continue;
+          const { sx } = mathToScreen(x, 0, width, height, vp);
+          if (sx < 24 || sx > width - 24) continue;
+          const text = formatAxisNumber(x, xGrid.major);
+          targetCtx.strokeStyle = gridHaloColor;
+          targetCtx.strokeText(text, sx, labelYPos);
+          targetCtx.fillStyle = gridLabelColor;
+          targetCtx.fillText(text, sx, labelYPos);
+        }
+
+        const yAxisOnRight = origin.sx > width - 48;
+        const labelXPos = yAxisOnRight
+          ? Math.min(origin.sx - 8, width - 8)
+          : Math.max(origin.sx - 8, 34);
+        targetCtx.textAlign = 'right';
+        targetCtx.textBaseline = 'middle';
+
+        const firstLabelY = Math.floor(vp.yMin / yGrid.major) * yGrid.major;
+        for (let y = firstLabelY; y <= vp.yMax; y += yGrid.major) {
+          if (Math.abs(y) < yGrid.major * 1e-5) continue;
+          const { sy } = mathToScreen(0, y, width, height, vp);
+          if (sy < 16 || sy > height - 16) continue;
+          const text = formatAxisNumber(y, yGrid.major);
+          targetCtx.strokeStyle = gridHaloColor;
+          targetCtx.strokeText(text, labelXPos, sy);
+          targetCtx.fillStyle = gridLabelColor;
+          targetCtx.fillText(text, labelXPos, sy);
+        }
+
+        if (origin.sx >= 14 && origin.sx <= width - 10 && origin.sy >= 10 && origin.sy <= height - 16) {
+          targetCtx.textAlign = 'right';
+          targetCtx.textBaseline = 'top';
+          targetCtx.strokeStyle = gridHaloColor;
+          targetCtx.strokeText('0', origin.sx - 6, origin.sy + 5);
+          targetCtx.fillStyle = gridLabelColor;
+          targetCtx.fillText('0', origin.sx - 6, origin.sy + 5);
+        }
+
+        // 3. Plot Mathematical Curves
+        const evalCtx = buildEvalContext();
+        const plottedSampleCache = [];
+
+        for (const expr of state.expressions) {
+          if (!expr.visible || !expr.parsed || !expr.parsed.valid || expr.parsed.empty) continue;
+
+          const isHighlighted = expr.id === state.activeExprId || expr.id === state.hoveredExprId;
+          targetCtx.save();
+          targetCtx.strokeStyle = expr.color;
+          targetCtx.lineWidth = isHighlighted ? 3.2 : 2.4;
+          targetCtx.lineCap = 'round';
+          targetCtx.lineJoin = 'round';
+          applyLineDash(targetCtx, expr.dash);
+
+          const kind = expr.parsed.kind;
+          const curvePts = [];
+
+          if (kind === 'explicit_y') {
+            const stepPx = 1.5;
+            const numSteps = Math.ceil(width / stepPx);
+            targetCtx.beginPath();
+            let penDown = false;
+            let prevSy = null;
+
+            for (let i = 0; i <= numSteps; i++) {
+              const sx = i * stepPx;
+              const x = vp.xMin + (sx / width) * xSpan;
+              evalCtx.x = x;
+              const y = expr.parsed.evalY(evalCtx);
+
+              if (!Number.isFinite(y)) {
+                penDown = false;
+                prevSy = null;
+                continue;
+              }
+
+              const sy = height - ((y - vp.yMin) / ySpan) * height;
+              if (penDown && prevSy !== null && Math.abs(sy - prevSy) > height * 0.75) {
+                penDown = false;
+              }
+
+              if (sy < -height * 2 || sy > height * 3) {
+                penDown = false;
+                prevSy = sy;
+                continue;
+              }
+
+              if (!penDown) {
+                targetCtx.moveTo(sx, sy);
+                penDown = true;
+              } else {
+                targetCtx.lineTo(sx, sy);
+              }
+              prevSy = sy;
+              if (i % 2 === 0) curvePts.push({ sx, sy, x, y });
+            }
+            targetCtx.stroke();
+          } else if (kind === 'explicit_x') {
+            const stepPx = 1.5;
+            const numSteps = Math.ceil(height / stepPx);
+            targetCtx.beginPath();
+            let penDown = false;
+            let prevSx = null;
+
+            for (let i = 0; i <= numSteps; i++) {
+              const sy = i * stepPx;
+              const y = vp.yMin + ((height - sy) / height) * ySpan;
+              evalCtx.y = y;
+              const x = expr.parsed.evalX(evalCtx);
+
+              if (!Number.isFinite(x)) {
+                penDown = false;
+                prevSx = null;
+                continue;
+              }
+
+              const sx = ((x - vp.xMin) / xSpan) * width;
+              if (penDown && prevSx !== null && Math.abs(sx - prevSx) > width * 0.75) {
+                penDown = false;
+              }
+
+              if (sx < -width * 2 || sx > width * 3) {
+                penDown = false;
+                prevSx = sx;
+                continue;
+              }
+
+              if (!penDown) {
+                targetCtx.moveTo(sx, sy);
+                penDown = true;
+              } else {
+                targetCtx.lineTo(sx, sy);
+              }
+              prevSx = sx;
+              if (i % 2 === 0) curvePts.push({ sx, sy, x, y });
+            }
+            targetCtx.stroke();
+          } else if (kind === 'polar') {
+            const tMin = Number.isFinite(expr.tMin) ? expr.tMin : 0;
+            const tMax = Number.isFinite(expr.tMax) ? expr.tMax : Math.PI * 2;
+            const steps = 720;
+            const dt = (tMax - tMin) / steps;
+            targetCtx.beginPath();
+            let penDown = false;
+
+            for (let i = 0; i <= steps; i++) {
+              const th = tMin + i * dt;
+              evalCtx.theta = th;
+              const r = expr.parsed.evalR(evalCtx);
+              if (!Number.isFinite(r)) {
+                penDown = false;
+                continue;
+              }
+              const radAngle = state.angleMode === 'deg' ? (th * Math.PI) / 180 : th;
+              const x = r * Math.cos(radAngle);
+              const y = r * Math.sin(radAngle);
+              const { sx, sy } = mathToScreen(x, y, width, height, vp);
+              if (!penDown) {
+                targetCtx.moveTo(sx, sy);
+                penDown = true;
+              } else {
+                targetCtx.lineTo(sx, sy);
+              }
+              if (i % 2 === 0) curvePts.push({ sx, sy, x, y });
+            }
+            targetCtx.stroke();
+          } else if (kind === 'parametric') {
+            const tMin = Number.isFinite(expr.tMin) ? expr.tMin : 0;
+            const tMax = Number.isFinite(expr.tMax) ? expr.tMax : Math.PI * 2;
+            const steps = 640;
+            const dt = (tMax - tMin) / steps;
+            targetCtx.beginPath();
+            let penDown = false;
+
+            for (let i = 0; i <= steps; i++) {
+              const t = tMin + i * dt;
+              evalCtx.t = t;
+              const pt = expr.parsed.evalParam(evalCtx);
+              if (!pt || !Number.isFinite(pt.x) || !Number.isFinite(pt.y)) {
+                penDown = false;
+                continue;
+              }
+              const { sx, sy } = mathToScreen(pt.x, pt.y, width, height, vp);
+              if (!penDown) {
+                targetCtx.moveTo(sx, sy);
+                penDown = true;
+              } else {
+                targetCtx.lineTo(sx, sy);
+              }
+              if (i % 2 === 0) curvePts.push({ sx, sy, x: pt.x, y: pt.y });
+            }
+            targetCtx.stroke();
+          } else if (kind === 'point') {
+            const pt = expr.parsed.evalPoint(evalCtx);
+            if (pt && Number.isFinite(pt.x) && Number.isFinite(pt.y)) {
+              const { sx, sy } = mathToScreen(pt.x, pt.y, width, height, vp);
+              targetCtx.setLineDash([]);
+              targetCtx.beginPath();
+              targetCtx.arc(sx, sy, isHighlighted ? 6.5 : 5.2, 0, Math.PI * 2);
+              targetCtx.fillStyle = expr.color;
+              targetCtx.fill();
+              targetCtx.lineWidth = 2;
+              targetCtx.strokeStyle = poiStroke;
+              targetCtx.stroke();
+
+              curvePts.push({ sx, sy, x: pt.x, y: pt.y });
+
+              if (expr.showLabel !== false) {
+                const labelText = `(${formatCoordDisplay(pt.x)}, ${formatCoordDisplay(pt.y)})`;
+                drawCoordinatePill(targetCtx, sx, sy - 16, labelText, false, width);
+              }
+            }
+          } else if (kind === 'implicit') {
+            // Marching Squares with Linear Interpolation
+            const cellSize = 7;
+            const cols = Math.ceil(width / cellSize);
+            const rows = Math.ceil(height / cellSize);
+            const grid = new Float64Array((cols + 1) * (rows + 1));
+
+            for (let r = 0; r <= rows; r++) {
+              const sy = r * cellSize;
+              evalCtx.y = vp.yMin + ((height - sy) / height) * ySpan;
+              const rowOffset = r * (cols + 1);
+              for (let c = 0; c <= cols; c++) {
+                const sx = c * cellSize;
+                evalCtx.x = vp.xMin + (sx / width) * xSpan;
+                grid[rowOffset + c] = expr.parsed.evalImplicit(evalCtx);
+              }
+            }
+
+            const interp = (p1, p2, v1, v2) => {
+              if (Math.abs(v2 - v1) < 1e-12) return 0.5 * (p1 + p2);
+              const t = -v1 / (v2 - v1);
+              return p1 + Math.max(0, Math.min(1, t)) * (p2 - p1);
+            };
+
+            targetCtx.beginPath();
+            for (let r = 0; r < rows; r++) {
+              const sy0 = r * cellSize;
+              const sy1 = sy0 + cellSize;
+              const r0 = r * (cols + 1);
+              const r1 = (r + 1) * (cols + 1);
+
+              for (let c = 0; c < cols; c++) {
+                const vTL = grid[r0 + c];
+                const vTR = grid[r0 + c + 1];
+                const vBR = grid[r1 + c + 1];
+                const vBL = grid[r1 + c];
+
+                if (
+                  !Number.isFinite(vTL) ||
+                  !Number.isFinite(vTR) ||
+                  !Number.isFinite(vBR) ||
+                  !Number.isFinite(vBL)
+                ) {
+                  continue;
+                }
+
+                let idx = 0;
+                if (vTL > 0) idx |= 8;
+                if (vTR > 0) idx |= 4;
+                if (vBR > 0) idx |= 2;
+                if (vBL > 0) idx |= 1;
+
+                if (idx === 0 || idx === 15) continue;
+
+                const sx0 = c * cellSize;
+                const sx1 = sx0 + cellSize;
+
+                const top = { sx: interp(sx0, sx1, vTL, vTR), sy: sy0 };
+                const right = { sx: sx1, sy: interp(sy0, sy1, vTR, vBR) };
+                const bottom = { sx: interp(sx0, sx1, vBL, vBR), sy: sy1 };
+                const left = { sx: sx0, sy: interp(sy0, sy1, vTL, vBL) };
+
+                const addSeg = (pA, pB) => {
+                  targetCtx.moveTo(pA.sx, pA.sy);
+                  targetCtx.lineTo(pB.sx, pB.sy);
+                  if ((r + c) % 3 === 0) {
+                    const mx = 0.5 * (pA.sx + pB.sx);
+                    const my = 0.5 * (pA.sy + pB.sy);
+                    const mPt = screenToMath(mx, my, width, height, vp);
+                    curvePts.push({ sx: mx, sy: my, x: mPt.x, y: mPt.y });
+                  }
+                };
+
+                switch (idx) {
+                  case 1: case 14: addSeg(left, bottom); break;
+                  case 2: case 13: addSeg(bottom, right); break;
+                  case 3: case 12: addSeg(left, right); break;
+                  case 4: case 11: addSeg(top, right); break;
+                  case 5: addSeg(left, top); addSeg(bottom, right); break;
+                  case 6: case 9: addSeg(top, bottom); break;
+                  case 7: case 8: addSeg(left, top); break;
+                  case 10: addSeg(top, right); addSeg(left, bottom); break;
+                }
+              }
+            }
+            targetCtx.stroke();
+          }
+
+          targetCtx.restore();
+          plottedSampleCache.push({ expr, pts: curvePts });
+        }
+
+        if (!options.isExport) {
+          state.plottedSampleCache = plottedSampleCache;
+        }
+
+        // 4. Draw Special Points of Interest (POIs) & Pinned Coordinate Badges
+        if (state.showPOI && !options.isExport) {
+          if (state.poisDirty) computeAllPOIs();
+
+          const focusId = state.hoveredExprId || state.activeExprId;
+          const visiblePois = focusId
+            ? state.pois.filter((p) => p.exprId === focusId || p.exprId2 === focusId)
+            : state.pois;
+
+          for (const poi of visiblePois) {
+            const { sx, sy } = mathToScreen(poi.x, poi.y, width, height, vp);
+            const isHovered =
+              state.hoveredPoi &&
+              Math.abs(state.hoveredPoi.x - poi.x) < 1e-6 &&
+              Math.abs(state.hoveredPoi.y - poi.y) < 1e-6;
+
+            targetCtx.beginPath();
+            targetCtx.arc(sx, sy, isHovered ? 5.6 : 4.2, 0, Math.PI * 2);
+            targetCtx.fillStyle = isHovered ? accentColor : poiFill;
+            targetCtx.fill();
+            targetCtx.lineWidth = 1.6;
+            targetCtx.strokeStyle = poiStroke;
+            targetCtx.stroke();
+          }
+
+          for (const pin of state.pinnedPois) {
+            const { sx, sy } = mathToScreen(pin.x, pin.y, width, height, vp);
+            if (sx < -40 || sx > width + 40 || sy < -40 || sy > height + 40) continue;
+
+            targetCtx.beginPath();
+            targetCtx.arc(sx, sy, 4.8, 0, Math.PI * 2);
+            targetCtx.fillStyle = accentColor;
+            targetCtx.fill();
+            targetCtx.lineWidth = 1.8;
+            targetCtx.strokeStyle = poiStroke;
+            targetCtx.stroke();
+
+            const text = `(${formatCoordDisplay(pin.x)}, ${formatCoordDisplay(pin.y)})`;
+            drawCoordinatePill(targetCtx, sx, sy - 14, text, true, width);
+          }
+
+          if (state.hoveredPoi) {
+            const { sx, sy } = mathToScreen(state.hoveredPoi.x, state.hoveredPoi.y, width, height, vp);
+            const text = `${state.hoveredPoi.type}: (${formatCoordDisplay(state.hoveredPoi.x)}, ${formatCoordDisplay(state.hoveredPoi.y)})`;
+            drawCoordinatePill(targetCtx, sx, sy - 16, text, false, width);
+          }
+        }
+
+        // 5. Render Curve Tracer Snap Dot & Coordinate Pill
+        if (!options.isExport && state.tracerPoint && !state.hoveredPoi && !state.isDragging) {
+          const { sx, sy, x, y, color } = state.tracerPoint;
+          targetCtx.beginPath();
+          targetCtx.arc(sx, sy, 5, 0, Math.PI * 2);
+          targetCtx.fillStyle = color;
+          targetCtx.fill();
+          targetCtx.lineWidth = 2;
+          targetCtx.strokeStyle = poiStroke;
+          targetCtx.stroke();
+
+          const text = `(${formatCoordDisplay(x)}, ${formatCoordDisplay(y)})`;
+          drawCoordinatePill(targetCtx, sx, sy - 15, text, false, width);
+        }
+      }
+
+      function drawCoordinatePill(context, cx, cy, text, isPinned, maxWidth) {
+        const isDark = state.theme === 'dark';
+        context.save();
+        context.font = '500 11.5px "Cascadia Code", "Consolas", "Yu Gothic UI", monospace';
+        const metrics = context.measureText(text);
+        const padX = 9;
+        const boxW = metrics.width + padX * 2;
+        const boxH = 24;
+        const bx = Math.min(Math.max(cx - boxW / 2, 8), maxWidth - boxW - 8);
+        const by = Math.max(cy - boxH / 2, 8);
+
+        context.shadowColor = isDark ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.14)';
+        context.shadowBlur = 10;
+        context.shadowOffsetY = 3;
+
+        context.fillStyle = isDark ? 'rgba(46, 46, 46, 0.94)' : 'rgba(255, 255, 255, 0.95)';
+        roundRectPath(context, bx, by, boxW, boxH, 6);
+        context.fill();
+
+        context.shadowColor = 'transparent';
+        context.lineWidth = 1;
+        context.strokeStyle = isPinned
+          ? (isDark ? '#60CDFF' : '#0067C0')
+          : (isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)');
+        context.stroke();
+
+        context.fillStyle = isDark ? '#FFFFFF' : '#1A1A1A';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(text, bx + boxW / 2, by + boxH / 2 + 0.5);
+        context.restore();
+      }
+
+      function roundRectPath(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+        const rect = canvasContainer.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(rect.width));
+        const h = Math.max(1, Math.floor(rect.height));
+
+        if (canvas._prevW && canvas._prevH && (canvas._prevW !== w || canvas._prevH !== h)) {
+          const vp = state.viewport;
+          const xCenter = 0.5 * (vp.xMin + vp.xMax);
+          const yCenter = 0.5 * (vp.yMin + vp.yMax);
+          const unitsPerPx = (vp.xMax - vp.xMin) / canvas._prevW;
+          const newHalfW = 0.5 * w * unitsPerPx;
+          const newHalfH = 0.5 * h * unitsPerPx;
+          vp.xMin = xCenter - newHalfW;
+          vp.xMax = xCenter + newHalfW;
+          vp.yMin = yCenter - newHalfH;
+          vp.yMax = yCenter + newHalfH;
+          state.poisDirty = true;
+        }
+        canvas._prevW = w;
+        canvas._prevH = h;
+
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+        state.needsRender = true;
+      }
+
+      /* ========================================================================
+         5. Expression & Parameter Slider Management + UI Rendering
+         ======================================================================== */
+      const exprListEl = document.getElementById('expression-list');
+
+      function syncSlidersFromExpressions() {
+        const neededParams = new Set();
+        const assignedValues = {};
+
+        for (const expr of state.expressions) {
+          if (expr.parsed && expr.parsed.valid && Array.isArray(expr.parsed.params)) {
+            for (const p of expr.parsed.params) {
+              neededParams.add(p);
+            }
+            if (expr.parsed.kind === 'assignment') {
+              const ctx = buildEvalContext();
+              const val = expr.parsed.evalValue(ctx);
+              if (Number.isFinite(val)) {
+                assignedValues[expr.parsed.varName] = val;
+              }
+            }
+          }
+        }
+
+        for (const p of neededParams) {
+          if (!state.sliders[p]) {
+            const initVal = assignedValues[p] !== undefined ? assignedValues[p] : 1;
+            const bound = Math.max(5, Math.ceil(Math.abs(initVal) * 2));
+            state.sliders[p] = {
+              name: p,
+              value: initVal,
+              min: -bound,
+              max: bound,
+              step: 0.1,
+              playing: false,
+              dir: 1
+            };
+          } else if (assignedValues[p] !== undefined) {
+            state.sliders[p].value = assignedValues[p];
+          }
+        }
+
+        for (const existing of Object.keys(state.sliders)) {
+          if (!neededParams.has(existing)) {
+            delete state.sliders[existing];
+          }
+        }
+      }
+
+      function addExpression(text = '', options = {}) {
+        const usedColors = new Set(state.expressions.map((e) => e.color));
+        const nextColorObj =
+          GRAPHIA_COLORS.find((c) => !usedColors.has(c.hex)) ||
+          GRAPHIA_COLORS[state.expressions.length % GRAPHIA_COLORS.length];
+
+        const exprObj = {
+          id: 'expr_' + nextExprUid++,
+          text,
+          color: options.color || nextColorObj.hex,
+          dash: options.dash || 'solid',
+          visible: options.visible !== undefined ? options.visible : true,
+          showLabel: options.showLabel !== undefined ? options.showLabel : true,
+          tMin: options.tMin !== undefined ? options.tMin : 0,
+          tMax: options.tMax !== undefined ? options.tMax : 6.2832,
+          parsed: parseUserEquation(text)
+        };
+
+        state.expressions.push(exprObj);
+        state.activeExprId = exprObj.id;
+        syncSlidersFromExpressions();
+        state.poisDirty = true;
+        state.needsRender = true;
+        renderExpressionList();
+        return exprObj;
+      }
+
+      function updateExpressionText(id, newText) {
+        const expr = state.expressions.find((e) => e.id === id);
+        if (!expr) return;
+        expr.text = newText;
+        expr.parsed = parseUserEquation(newText);
+
+        state.pinnedPois = state.pinnedPois.filter((p) => p.exprId !== id && p.exprId2 !== id);
+
+        const prevSliderKeys = Object.keys(state.sliders).join(',');
+        syncSlidersFromExpressions();
+        const nextSliderKeys = Object.keys(state.sliders).join(',');
+
+        state.poisDirty = true;
+        state.needsRender = true;
+
+        if (prevSliderKeys !== nextSliderKeys || expr.parsed.kind === 'assignment') {
+          renderExpressionList(id);
+        } else {
+          updateCardMetaInPlace(expr);
+        }
+      }
+
+      function updateCardMetaInPlace(expr) {
+        const card = exprListEl.querySelector(`[data-expr-id="${expr.id}"]`);
+        if (!card) return;
+        const wrap = card.querySelector('.win-textbox-wrap');
+        const errBadge = card.querySelector('.expr-error-badge');
+        const subRow = card.querySelector('.expr-sub-row');
+
+        if (!expr.parsed.valid) {
+          wrap.classList.add('has-error');
+          errBadge.style.display = 'flex';
+          errBadge.title = expr.parsed.error;
+        } else {
+          wrap.classList.remove('has-error');
+          errBadge.style.display = 'none';
+        }
+
+        subRow.innerHTML = buildExprSubRowHTML(expr);
+        bindSubRowEvents(card, expr);
+      }
+
+      function buildExprSubRowHTML(expr) {
+        if (!expr.parsed || expr.parsed.empty) return '';
+        if (!expr.parsed.valid) {
+          return `<span class="expr-type-tag" style="color: var(--danger); background: var(--danger-bg);">${escapeHtml(expr.parsed.error)}</span>`;
+        }
+        let html = `<span class="expr-type-tag">${expr.parsed.typeLabel}</span>`;
+        if (expr.parsed.kind === 'parametric' || expr.parsed.kind === 'polar') {
+          const sym = expr.parsed.kind === 'polar' ? 'θ' : 't';
+          html += `
+            <div class="param-range-group">
+              <input type="number" step="any" class="mini-num-input t-min-input" value="${expr.tMin}" title="${sym}の最小値" />
+              <span>≤ ${sym} ≤</span>
+              <input type="number" step="any" class="mini-num-input t-max-input" value="${expr.tMax}" title="${sym}の最大値" />
+            </div>
+          `;
+        } else if (expr.parsed.kind === 'point') {
+          html += `
+            <label class="point-label-check">
+              <input type="checkbox" class="point-label-checkbox" ${expr.showLabel !== false ? 'checked' : ''} />
+              <span>座標ラベルを表示</span>
+            </label>
+          `;
+        }
+        return html;
+      }
+
+      function bindSubRowEvents(card, expr) {
+        const tMinInput = card.querySelector('.t-min-input');
+        const tMaxInput = card.querySelector('.t-max-input');
+        const pointLabelCb = card.querySelector('.point-label-checkbox');
+        if (tMinInput) {
+          tMinInput.addEventListener('input', () => {
+            const v = parseFloat(tMinInput.value);
+            if (Number.isFinite(v)) {
+              expr.tMin = v;
+              state.needsRender = true;
+            }
+          });
+        }
+        if (tMaxInput) {
+          tMaxInput.addEventListener('input', () => {
+            const v = parseFloat(tMaxInput.value);
+            if (Number.isFinite(v)) {
+              expr.tMax = v;
+              state.needsRender = true;
+            }
+          });
+        }
+        if (pointLabelCb) {
+          pointLabelCb.addEventListener('change', () => {
+            expr.showLabel = pointLabelCb.checked;
+            state.needsRender = true;
+          });
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function renderExpressionList(focusId = null) {
+        let caretPos = null;
+        if (focusId) {
+          const activeEl = document.activeElement;
+          if (activeEl && activeEl.classList.contains('expr-input')) {
+            caretPos = activeEl.selectionStart;
+          }
+        }
+
+        exprListEl.innerHTML = '';
+
+        // 1. Render Expression Cards
+        for (const expr of state.expressions) {
+          const card = document.createElement('div');
+          card.className =
+            'expr-card' +
+            (expr.id === state.activeExprId ? ' selected' : '') +
+            (!expr.visible ? ' curve-hidden' : '');
+          card.dataset.exprId = expr.id;
+
+          const hasError = expr.parsed && !expr.parsed.valid;
+          card.innerHTML = `
+            <div class="expr-main-row">
+              <button class="color-toggle-btn" title="色と線種を変更" aria-label="色と線種を変更">
+                <span class="color-dot" style="background-color: ${expr.color};"></span>
+              </button>
+              <div class="win-textbox-wrap ${hasError ? 'has-error' : ''}">
+                <input type="text" class="expr-input" spellcheck="false" autocomplete="off"
+                  placeholder="例: y = sin(x), x^2 + y^2 = 9, (2, 3)"
+                  value="${escapeHtml(expr.text)}" />
+                <span class="expr-error-badge" style="display: ${hasError ? 'flex' : 'none'};" title="${hasError ? escapeHtml(expr.parsed.error) : ''}">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                </span>
+              </div>
+              <button class="win-icon-btn visibility-toggle-btn ${expr.visible ? '' : 'active'}" title="${expr.visible ? 'グラフを非表示' : 'グラフを表示'}" aria-label="表示切替">
+                ${
+                  expr.visible
+                    ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
+                    : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`
+                }
+              </button>
+              <button class="win-icon-btn delete-expr-btn" title="数式を削除" aria-label="数式を削除">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div class="expr-sub-row">${buildExprSubRowHTML(expr)}</div>
+          `;
+
+          card.addEventListener('mouseenter', () => {
+            state.hoveredExprId = expr.id;
+            state.needsRender = true;
+          });
+          card.addEventListener('mouseleave', () => {
+            if (state.hoveredExprId === expr.id) {
+              state.hoveredExprId = null;
+              state.needsRender = true;
+            }
+          });
+
+          const inputEl = card.querySelector('.expr-input');
+          inputEl.addEventListener('focus', () => {
+            state.activeExprId = expr.id;
+            exprListEl.querySelectorAll('.expr-card').forEach((c) => {
+              c.classList.toggle('selected', c.dataset.exprId === expr.id);
+            });
+            state.needsRender = true;
+          });
+          inputEl.addEventListener('input', (e) => {
+            updateExpressionText(expr.id, e.target.value);
+          });
+
+          // Color Swatch -> Open Style Flyout
+          const colorBtn = card.querySelector('.color-toggle-btn');
+          colorBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openStyleFlyout(expr, colorBtn);
+          });
+
+          // Visibility Toggle Button
+          const visBtn = card.querySelector('.visibility-toggle-btn');
+          visBtn.addEventListener('click', () => {
+            expr.visible = !expr.visible;
+            state.poisDirty = true;
+            state.needsRender = true;
+            renderExpressionList();
+          });
+
+          // Delete Expression
+          const delBtn = card.querySelector('.delete-expr-btn');
+          delBtn.addEventListener('click', () => {
+            state.expressions = state.expressions.filter((item) => item.id !== expr.id);
+            state.pinnedPois = state.pinnedPois.filter((p) => p.exprId !== expr.id && p.exprId2 !== expr.id);
+            if (state.expressions.length === 0) {
+              addExpression('');
+              return;
+            }
+            syncSlidersFromExpressions();
+            state.poisDirty = true;
+            state.needsRender = true;
+            renderExpressionList();
+          });
+
+          bindSubRowEvents(card, expr);
+          exprListEl.appendChild(card);
+
+          if (focusId === expr.id) {
+            inputEl.focus();
+            if (caretPos !== null) {
+              inputEl.setSelectionRange(caretPos, caretPos);
+            }
+          }
+        }
+
+        // 2. Render Parameter Slider Cards
+        const sliderKeys = Object.keys(state.sliders);
+        for (const key of sliderKeys) {
+          const sl = state.sliders[key];
+          const sCard = document.createElement('div');
+          sCard.className = 'slider-card';
+          sCard.dataset.paramKey = key;
+
+          sCard.innerHTML = `
+            <div class="slider-top-row">
+              <div class="slider-label-group">
+                <button class="win-icon-btn play-slider-btn ${sl.playing ? 'active' : ''}" style="width:26px; height:26px;" title="再生 / 一時停止">
+                  ${
+                    sl.playing
+                      ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`
+                      : `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>`
+                  }
+                </button>
+                <span>${escapeHtml(key)} =</span>
+                <input type="number" step="any" class="slider-val-input" value="${Number(sl.value.toFixed(4))}" />
+              </div>
+              <div style="display:flex; align-items:center; gap:4px; font-size:11px; color:var(--text-secondary);">
+                <span>刻み</span>
+                <input type="number" step="any" class="slider-bound-input step-input" value="${sl.step}" title="ステップ幅" />
+              </div>
+            </div>
+            <div class="slider-control-row">
+              <input type="number" step="any" class="slider-bound-input min-input" value="${sl.min}" title="最小値" />
+              <input type="range" class="win-slider" min="${sl.min}" max="${sl.max}" step="${sl.step}" value="${sl.value}" />
+              <input type="number" step="any" class="slider-bound-input max-input" value="${sl.max}" title="最大値" />
+            </div>
+          `;
+
+          const playBtn = sCard.querySelector('.play-slider-btn');
+          const valInput = sCard.querySelector('.slider-val-input');
+          const rangeEl = sCard.querySelector('.win-slider');
+          const minInput = sCard.querySelector('.min-input');
+          const maxInput = sCard.querySelector('.max-input');
+          const stepInput = sCard.querySelector('.step-input');
+
+          playBtn.addEventListener('click', () => {
+            sl.playing = !sl.playing;
+            playBtn.classList.toggle('active', sl.playing);
+            playBtn.innerHTML = sl.playing
+              ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`
+              : `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>`;
+          });
+
+          rangeEl.addEventListener('input', () => {
+            sl.value = parseFloat(rangeEl.value);
+            valInput.value = Number(sl.value.toFixed(4));
+            for (const ex of state.expressions) {
+              if (ex.parsed && ex.parsed.kind === 'assignment' && ex.parsed.varName === key) {
+                ex.text = `${key} = ${Number(sl.value.toFixed(4))}`;
+                const cInput = exprListEl.querySelector(`[data-expr-id="${ex.id}"] .expr-input`);
+                if (cInput) cInput.value = ex.text;
+              }
+            }
+            state.poisDirty = true;
+            state.needsRender = true;
+          });
+
+          valInput.addEventListener('input', () => {
+            const v = parseFloat(valInput.value);
+            if (Number.isFinite(v)) {
+              sl.value = v;
+              if (v < sl.min) {
+                sl.min = v;
+                minInput.value = v;
+                rangeEl.min = v;
+              }
+              if (v > sl.max) {
+                sl.max = v;
+                maxInput.value = v;
+                rangeEl.max = v;
+              }
+              rangeEl.value = v;
+              state.poisDirty = true;
+              state.needsRender = true;
+            }
+          });
+
+          minInput.addEventListener('change', () => {
+            const v = parseFloat(minInput.value);
+            if (Number.isFinite(v) && v < sl.max) {
+              sl.min = v;
+              rangeEl.min = v;
+            }
+          });
+
+          maxInput.addEventListener('change', () => {
+            const v = parseFloat(maxInput.value);
+            if (Number.isFinite(v) && v > sl.min) {
+              sl.max = v;
+              rangeEl.max = v;
+            }
+          });
+
+          stepInput.addEventListener('change', () => {
+            const v = parseFloat(stepInput.value);
+            if (Number.isFinite(v) && v > 0) {
+              sl.step = v;
+              rangeEl.step = v;
+            }
+          });
+
+          exprListEl.appendChild(sCard);
+        }
+      }
+
+      /* ========================================================================
+         6. Style Flyout, On-Screen Math Keypad & Credits ContentDialog
+         ======================================================================== */
+      const styleFlyout = document.getElementById('style-flyout');
+      const colorPaletteGrid = document.getElementById('color-palette-grid');
+      const lineStyleRow = document.getElementById('line-style-row');
+
+      GRAPHIA_COLORS.forEach((c) => {
+        const btn = document.createElement('button');
+        btn.className = 'palette-swatch';
+        btn.style.backgroundColor = c.hex;
+        btn.title = c.name;
+        btn.dataset.hex = c.hex;
+        btn.addEventListener('click', () => {
+          const expr = state.expressions.find((e) => e.id === state.styleTargetExprId);
+          if (expr) {
+            expr.color = c.hex;
+            state.needsRender = true;
+            renderExpressionList();
+            updateStyleFlyoutSelection(expr);
+          }
+        });
+        colorPaletteGrid.appendChild(btn);
+      });
+
+      lineStyleRow.querySelectorAll('.line-style-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const expr = state.expressions.find((e) => e.id === state.styleTargetExprId);
+          if (expr) {
+            expr.dash = btn.dataset.dash;
+            state.needsRender = true;
+            updateStyleFlyoutSelection(expr);
+          }
+        });
+      });
+
+      function updateStyleFlyoutSelection(expr) {
+        colorPaletteGrid.querySelectorAll('.palette-swatch').forEach((sw) => {
+          sw.classList.toggle('active', sw.dataset.hex.toLowerCase() === expr.color.toLowerCase());
+        });
+        lineStyleRow.querySelectorAll('.line-style-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.dash === expr.dash);
+        });
+      }
+
+      function openStyleFlyout(expr, anchorEl) {
+        state.styleTargetExprId = expr.id;
+        updateStyleFlyoutSelection(expr);
+        const rect = anchorEl.getBoundingClientRect();
+        styleFlyout.style.left = `${Math.min(rect.left, window.innerWidth - 224)}px`;
+        styleFlyout.style.top = `${Math.min(rect.bottom + 6, window.innerHeight - 190)}px`;
+        styleFlyout.classList.add('open');
+      }
+
+      // On-Screen Math Keypad
+      const KEYPAD_KEYS = [
+        { label: 'x', insert: 'x', cls: 'fn-key' },
+        { label: 'y', insert: 'y', cls: 'fn-key' },
+        { label: 'a²', insert: '^2', cls: 'fn-key' },
+        { label: 'aᵇ', insert: '^', cls: 'fn-key' },
+        { label: '7', insert: '7' },
+        { label: '8', insert: '8' },
+        { label: '9', insert: '9' },
+
+        { label: '√', insert: 'sqrt(', cls: 'fn-key' },
+        { label: '|a|', insert: '|', cls: 'fn-key' },
+        { label: 'π', insert: 'π', cls: 'fn-key' },
+        { label: 'e', insert: 'e', cls: 'fn-key' },
+        { label: '4', insert: '4' },
+        { label: '5', insert: '5' },
+        { label: '6', insert: '6' },
+
+        { label: 'sin', insert: 'sin(', cls: 'fn-key' },
+        { label: 'cos', insert: 'cos(', cls: 'fn-key' },
+        { label: 'tan', insert: 'tan(', cls: 'fn-key' },
+        { label: '(', insert: '(' },
+        { label: '1', insert: '1' },
+        { label: '2', insert: '2' },
+        { label: '3', insert: '3' },
+
+        { label: 'log', insert: 'log(', cls: 'fn-key' },
+        { label: 'ln', insert: 'ln(', cls: 'fn-key' },
+        { label: 'θ', insert: 'θ', cls: 'fn-key' },
+        { label: ')', insert: ')' },
+        { label: '0', insert: '0' },
+        { label: '.', insert: '.' },
+        { label: '=', insert: '=' },
+
+        { label: '+', insert: '+' },
+        { label: '−', insert: '-' },
+        { label: '×', insert: '*' },
+        { label: '÷', insert: '/' },
+        { label: 't', insert: 't', cls: 'fn-key' },
+        { label: '←', action: 'backspace', cls: 'action-key' },
+        { label: 'クリア', action: 'clear', cls: 'action-key' }
+      ];
+
+      const keypadGrid = document.getElementById('keypad-grid');
+      KEYPAD_KEYS.forEach((k) => {
+        const btn = document.createElement('button');
+        btn.className = `key-btn ${k.cls || ''}`;
+        btn.textContent = k.label;
+        btn.addEventListener('mousedown', (e) => e.preventDefault());
+        btn.addEventListener('click', () => {
+          let targetExpr = state.expressions.find((e) => e.id === state.activeExprId);
+          if (!targetExpr) {
+            targetExpr = addExpression('');
+          }
+          const card = exprListEl.querySelector(`[data-expr-id="${targetExpr.id}"]`);
+          const input = card ? card.querySelector('.expr-input') : null;
+          if (!input) return;
+
+          input.focus();
+          const start = input.selectionStart ?? input.value.length;
+          const end = input.selectionEnd ?? input.value.length;
+
+          if (k.action === 'backspace') {
+            if (start !== end) {
+              input.value = input.value.slice(0, start) + input.value.slice(end);
+              input.setSelectionRange(start, start);
+            } else if (start > 0) {
+              input.value = input.value.slice(0, start - 1) + input.value.slice(end);
+              input.setSelectionRange(start - 1, start - 1);
+            }
+          } else if (k.action === 'clear') {
+            input.value = '';
+            input.setSelectionRange(0, 0);
+          } else {
+            input.value = input.value.slice(0, start) + k.insert + input.value.slice(end);
+            const nextPos = start + k.insert.length;
+            input.setSelectionRange(nextPos, nextPos);
+          }
+
+          updateExpressionText(targetExpr.id, input.value);
+        });
+        keypadGrid.appendChild(btn);
+      });
+
+      // Win UI 3 ContentDialog: Credits & Licenses Modal Logic
+      const creditsBackdrop = document.getElementById('credits-backdrop');
+      const creditsDialog = document.getElementById('credits-dialog');
+
+      function openCreditsDialog() {
+        creditsBackdrop.classList.add('open');
+        document.getElementById('credits-close-btn').focus();
+      }
+
+      function closeCreditsDialog() {
+        creditsBackdrop.classList.remove('open');
+      }
+
+      document.getElementById('sidebar-credits-btn').addEventListener('click', openCreditsDialog);
+      document.getElementById('top-credits-btn').addEventListener('click', openCreditsDialog);
+      document.getElementById('credits-close-x').addEventListener('click', closeCreditsDialog);
+      document.getElementById('credits-close-btn').addEventListener('click', closeCreditsDialog);
+
+      creditsBackdrop.addEventListener('click', (e) => {
+        if (!creditsDialog.contains(e.target)) {
+          closeCreditsDialog();
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && creditsBackdrop.classList.contains('open')) {
+          closeCreditsDialog();
+        }
+      });
+
+      /* ========================================================================
+         7. Canvas Pan, Zoom, POI Hover/Pin & Curve Tracer Interactions
+         ======================================================================== */
+      function zoomViewportAt(factor, screenX, screenY) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const focusMath = screenToMath(screenX, screenY, w, h);
+        const vp = state.viewport;
+
+        const newXMin = focusMath.x - (focusMath.x - vp.xMin) * factor;
+        const newXMax = focusMath.x + (vp.xMax - focusMath.x) * factor;
+        const newYMin = focusMath.y - (focusMath.y - vp.yMin) * factor;
+        const newYMax = focusMath.y + (vp.yMax - focusMath.y) * factor;
+
+        const newSpanX = newXMax - newXMin;
+        if (newSpanX < 1e-6 || newSpanX > 1e7) return;
+
+        vp.xMin = newXMin;
+        vp.xMax = newXMax;
+        vp.yMin = newYMin;
+        vp.yMax = newYMax;
+        state.poisDirty = true;
+        state.needsRender = true;
+      }
+
+      canvas.addEventListener(
+        'wheel',
+        (e) => {
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          const zoomFactor = e.deltaY > 0 ? 1.12 : 1 / 1.12;
+          zoomViewportAt(zoomFactor, sx, sy);
+        },
+        { passive: false }
+      );
+
+      function updateHoverAndTracer(sx, sy) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+
+        let nearestPoi = null;
+        let bestPoiDist = 13;
+        if (state.showPOI) {
+          const focusId = state.hoveredExprId || state.activeExprId;
+          const visiblePois = focusId
+            ? state.pois.filter((p) => p.exprId === focusId || p.exprId2 === focusId)
+            : state.pois;
+
+          for (const poi of visiblePois) {
+            const pScreen = mathToScreen(poi.x, poi.y, w, h);
+            const d = Math.hypot(pScreen.sx - sx, pScreen.sy - sy);
+            if (d < bestPoiDist) {
+              bestPoiDist = d;
+              nearestPoi = poi;
+            }
+          }
+        }
+
+        state.hoveredPoi = nearestPoi;
+
+        let nearestCurvePt = null;
+        let bestCurveDist = 15;
+        if (!nearestPoi && state.plottedSampleCache) {
+          for (const entry of state.plottedSampleCache) {
+            for (const pt of entry.pts) {
+              const d = Math.hypot(pt.sx - sx, pt.sy - sy);
+              if (d < bestCurveDist) {
+                bestCurveDist = d;
+                nearestCurvePt = {
+                  sx: pt.sx,
+                  sy: pt.sy,
+                  x: pt.x,
+                  y: pt.y,
+                  color: entry.expr.color,
+                  exprId: entry.expr.id
+                };
+              }
+            }
+          }
+        }
+
+        state.tracerPoint = nearestCurvePt;
+        canvas.classList.toggle('pointer', Boolean(nearestPoi || nearestCurvePt));
+        state.needsRender = true;
+      }
+
+      let pointerDownPos = null;
+
+      canvas.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        const rect = canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        pointerDownPos = { sx, sy };
+        state.isDragging = true;
+        state.dragStart = {
+          sx,
+          sy,
+          vp: { ...state.viewport }
+        };
+        canvas.classList.add('grabbing');
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+
+        if (state.isDragging && state.dragStart) {
+          const w = canvas.clientWidth;
+          const h = canvas.clientHeight;
+          const dxPx = sx - state.dragStart.sx;
+          const dyPx = sy - state.dragStart.sy;
+          const origVp = state.dragStart.vp;
+          const dxMath = (dxPx / w) * (origVp.xMax - origVp.xMin);
+          const dyMath = (dyPx / h) * (origVp.yMax - origVp.yMin);
+
+          state.viewport.xMin = origVp.xMin - dxMath;
+          state.viewport.xMax = origVp.xMax - dxMath;
+          state.viewport.yMin = origVp.yMin + dyMath;
+          state.viewport.yMax = origVp.yMax + dyMath;
+          state.poisDirty = true;
+          state.needsRender = true;
+        } else if (e.target === canvas) {
+          updateHoverAndTracer(sx, sy);
+        }
+      });
+
+      window.addEventListener('mouseup', (e) => {
+        if (!state.isDragging) return;
+        const rect = canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+
+        if (pointerDownPos && Math.hypot(sx - pointerDownPos.sx, sy - pointerDownPos.sy) < 5) {
+          if (state.hoveredPoi) {
+            const p = state.hoveredPoi;
+            const existingIdx = state.pinnedPois.findIndex(
+              (pin) => Math.abs(pin.x - p.x) < 1e-6 && Math.abs(pin.y - p.y) < 1e-6
+            );
+            if (existingIdx >= 0) {
+              state.pinnedPois.splice(existingIdx, 1);
+            } else {
+              state.pinnedPois.push({ ...p });
+            }
+            state.needsRender = true;
+          }
+        }
+
+        state.isDragging = false;
+        state.dragStart = null;
+        canvas.classList.remove('grabbing');
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        state.tracerPoint = null;
+        state.hoveredPoi = null;
+        state.needsRender = true;
+      });
+
+      // Touch Pan & Two-Finger Pinch Zoom
+      canvas.addEventListener(
+        'touchstart',
+        (e) => {
+          const rect = canvas.getBoundingClientRect();
+          if (e.touches.length === 1) {
+            const t = e.touches[0];
+            const sx = t.clientX - rect.left;
+            const sy = t.clientY - rect.top;
+            pointerDownPos = { sx, sy };
+            state.isDragging = true;
+            state.dragStart = { sx, sy, vp: { ...state.viewport } };
+          } else if (e.touches.length === 2) {
+            state.isDragging = false;
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            const midX = 0.5 * (t1.clientX + t2.clientX) - rect.left;
+            const midY = 0.5 * (t1.clientY + t2.clientY) - rect.top;
+            state.pinchState = { dist, midX, midY };
+          }
+        },
+        { passive: true }
+      );
+
+      canvas.addEventListener(
+        'touchmove',
+        (e) => {
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          if (e.touches.length === 1 && state.isDragging && state.dragStart) {
+            const t = e.touches[0];
+            const sx = t.clientX - rect.left;
+            const sy = t.clientY - rect.top;
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            const origVp = state.dragStart.vp;
+            const dxMath = ((sx - state.dragStart.sx) / w) * (origVp.xMax - origVp.xMin);
+            const dyMath = ((sy - state.dragStart.sy) / h) * (origVp.yMax - origVp.yMin);
+
+            state.viewport.xMin = origVp.xMin - dxMath;
+            state.viewport.xMax = origVp.xMax - dxMath;
+            state.viewport.yMin = origVp.yMin + dyMath;
+            state.viewport.yMax = origVp.yMax + dyMath;
+            state.poisDirty = true;
+            state.needsRender = true;
+          } else if (e.touches.length === 2 && state.pinchState) {
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const newDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            if (newDist > 10 && state.pinchState.dist > 10) {
+              const factor = state.pinchState.dist / newDist;
+              const midX = 0.5 * (t1.clientX + t2.clientX) - rect.left;
+              const midY = 0.5 * (t1.clientY + t2.clientY) - rect.top;
+              zoomViewportAt(factor, midX, midY);
+              state.pinchState.dist = newDist;
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      canvas.addEventListener('touchend', () => {
+        state.isDragging = false;
+        state.dragStart = null;
+        state.pinchState = null;
+      });
+
+      /* ========================================================================
+         8. UI Controls, Sidebar Resizing, Presets & PNG Export
+         ======================================================================== */
+      const sidebar = document.getElementById('sidebar');
+      const sidebarExpandBtn = document.getElementById('sidebar-expand-btn');
+      const keypadWrapper = document.getElementById('keypad-wrapper');
+
+      function updateKeypadOffset() {
+        if (window.innerWidth <= 768) {
+          keypadWrapper.style.left = '12px';
+        } else if (state.sidebarCollapsed) {
+          keypadWrapper.style.left = '12px';
+        } else {
+          keypadWrapper.style.left = `${sidebar.offsetWidth + 24}px`;
+        }
+      }
+
+      document.getElementById('sidebar-collapse-btn').addEventListener('click', () => {
+        state.sidebarCollapsed = true;
+        sidebar.classList.add('collapsed');
+        sidebarExpandBtn.classList.add('visible');
+        updateKeypadOffset();
+      });
+
+      sidebarExpandBtn.addEventListener('click', () => {
+        state.sidebarCollapsed = false;
+        sidebar.classList.remove('collapsed');
+        sidebarExpandBtn.classList.remove('visible');
+        updateKeypadOffset();
+      });
+
+      const resizer = document.getElementById('sidebar-resizer');
+      let isResizingSidebar = false;
+      resizer.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isResizingSidebar = true;
+        resizer.classList.add('dragging');
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isResizingSidebar) return;
+        const newW = Math.min(Math.max(e.clientX - 12, 280), Math.min(580, window.innerWidth - 48));
+        sidebar.style.width = `${newW}px`;
+        updateKeypadOffset();
+      });
+      window.addEventListener('mouseup', () => {
+        if (isResizingSidebar) {
+          isResizingSidebar = false;
+          resizer.classList.remove('dragging');
+        }
+      });
+
+      document.getElementById('add-expr-btn').addEventListener('click', () => {
+        const created = addExpression('');
+        const card = exprListEl.querySelector(`[data-expr-id="${created.id}"]`);
+        if (card) card.querySelector('.expr-input').focus();
+      });
+
+      document.getElementById('clear-all-btn').addEventListener('click', () => {
+        state.expressions = [];
+        state.sliders = {};
+        state.pinnedPois = [];
+        state.hoveredPoi = null;
+        state.tracerPoint = null;
+        const created = addExpression('');
+        const card = exprListEl.querySelector(`[data-expr-id="${created.id}"]`);
+        if (card) card.querySelector('.expr-input').focus();
+        showToast('すべての数式をクリアしました');
+      });
+
+      function loadPreset(presetKey) {
+        const preset = PRESETS[presetKey];
+        if (!preset) return;
+
+        state.expressions = [];
+        state.sliders = {};
+        state.pinnedPois = [];
+        state.hoveredPoi = null;
+        state.tracerPoint = null;
+
+        const w = canvas.clientWidth || window.innerWidth;
+        const h = canvas.clientHeight || window.innerHeight;
+        const aspect = w / Math.max(h, 1);
+        const targetHalfY = 0.5 * (preset.viewport.yMax - preset.viewport.yMin);
+        const yCenter = 0.5 * (preset.viewport.yMin + preset.viewport.yMax);
+        const xCenter = 0.5 * (preset.viewport.xMin + preset.viewport.xMax);
+        const targetHalfX = targetHalfY * aspect;
+
+        state.viewport = {
+          xMin: xCenter - targetHalfX,
+          xMax: xCenter + targetHalfX,
+          yMin: yCenter - targetHalfY,
+          yMax: yCenter + targetHalfY
+        };
+
+        for (const [k, sCfg] of Object.entries(preset.sliders)) {
+          state.sliders[k] = { name: k, ...sCfg };
+        }
+
+        for (const item of preset.expressions) {
+          addExpression(item.text, item);
+        }
+
+        state.poisDirty = true;
+        state.needsRender = true;
+        renderExpressionList();
+      }
+
+      document.getElementById('preset-select').addEventListener('change', (e) => {
+        if (e.target.value) {
+          loadPreset(e.target.value);
+          showToast('プリセットを読み込みました');
+        }
+      });
+
+      // Bottom-Right Canvas Controls (+, -, Reset, PNG Export)
+      document.getElementById('zoom-in-btn').addEventListener('click', () => {
+        zoomViewportAt(1 / 1.3, canvas.clientWidth / 2, canvas.clientHeight / 2);
+      });
+      document.getElementById('zoom-out-btn').addEventListener('click', () => {
+        zoomViewportAt(1.3, canvas.clientWidth / 2, canvas.clientHeight / 2);
+      });
+      document.getElementById('reset-view-btn').addEventListener('click', () => {
+        const w = canvas.clientWidth || window.innerWidth;
+        const h = canvas.clientHeight || window.innerHeight;
+        const aspect = w / Math.max(h, 1);
+        const halfY = 5.2;
+        const halfX = halfY * aspect;
+        state.viewport = { xMin: -halfX, xMax: halfX, yMin: -halfY, yMax: halfY };
+        state.poisDirty = true;
+        state.needsRender = true;
+      });
+
+      function exportGraphAsPNG() {
+        const exportCanvas = document.createElement('canvas');
+        const scale = 2;
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        exportCanvas.width = w * scale;
+        exportCanvas.height = h * scale;
+        const exCtx = exportCanvas.getContext('2d');
+        exCtx.scale(scale, scale);
+
+        renderGraphToContext(exCtx, w, h, { isExport: true });
+
+        const link = document.createElement('a');
+        link.download = `graphia-plot-${Date.now()}.png`;
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+
+        settingsFlyout.classList.remove('open');
+        settingsToggleBtn.classList.remove('active');
+        showToast('グラフ画像を PNG として保存しました');
+      }
+
+      document.getElementById('quick-export-btn').addEventListener('click', exportGraphAsPNG);
+      document.getElementById('export-png-btn').addEventListener('click', exportGraphAsPNG);
+
+      // Settings Flyout Toggle
+      const settingsFlyout = document.getElementById('settings-flyout');
+      const settingsToggleBtn = document.getElementById('settings-toggle-btn');
+      settingsToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = settingsFlyout.classList.toggle('open');
+        settingsToggleBtn.classList.toggle('active', isOpen);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!settingsFlyout.contains(e.target) && !settingsToggleBtn.contains(e.target)) {
+          settingsFlyout.classList.remove('open');
+          settingsToggleBtn.classList.remove('active');
+        }
+        if (!styleFlyout.contains(e.target) && !e.target.closest('.color-toggle-btn')) {
+          styleFlyout.classList.remove('open');
+        }
+      });
+
+      function bindSwitch(elId, stateKey) {
+        const el = document.getElementById(elId);
+        el.addEventListener('click', () => {
+          state[stateKey] = !state[stateKey];
+          el.classList.toggle('on', state[stateKey]);
+          el.setAttribute('aria-checked', String(state[stateKey]));
+          state.poisDirty = true;
+          state.needsRender = true;
+        });
+      }
+      bindSwitch('toggle-grid', 'showGrid');
+      bindSwitch('toggle-minor-grid', 'showMinorGrid');
+      bindSwitch('toggle-poi', 'showPOI');
+
+      // Angle Mode Segmented Control
+      document.getElementById('angle-mode-seg').querySelectorAll('.win-seg-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.angleMode = btn.dataset.val;
+          document.getElementById('angle-mode-seg').querySelectorAll('.win-seg-btn').forEach((b) => {
+            b.classList.toggle('active', b === btn);
+          });
+          state.poisDirty = true;
+          state.needsRender = true;
+        });
+      });
+
+      // Theme Mode Helpers & Controls
+      function applyTheme(newTheme) {
+        state.theme = newTheme;
+        document.documentElement.setAttribute('data-theme', newTheme);
+        document.getElementById('theme-mode-seg').querySelectorAll('.win-seg-btn').forEach((b) => {
+          b.classList.toggle('active', b.dataset.val === newTheme);
+        });
+        const isDark = newTheme === 'dark';
+        document.getElementById('theme-icon-moon').style.display = isDark ? 'none' : 'block';
+        document.getElementById('theme-icon-sun').style.display = isDark ? 'block' : 'none';
+        state.needsRender = true;
+      }
+
+      document.getElementById('theme-mode-seg').querySelectorAll('.win-seg-btn').forEach((btn) => {
+        btn.addEventListener('click', () => applyTheme(btn.dataset.val));
+      });
+
+      document.getElementById('quick-theme-btn').addEventListener('click', () => {
+        applyTheme(state.theme === 'light' ? 'dark' : 'light');
+      });
+
+      // Keypad Toggle
+      const keypadPanel = document.getElementById('keypad-panel');
+      const keypadToggleBtn = document.getElementById('keypad-toggle-btn');
+      keypadToggleBtn.addEventListener('click', () => {
+        state.keypadOpen = !state.keypadOpen;
+        keypadPanel.classList.toggle('open', state.keypadOpen);
+        keypadToggleBtn.classList.toggle('active', state.keypadOpen);
+      });
+
+      // Toast Notification
+      let toastTimer = null;
+      function showToast(msg) {
+        const toast = document.getElementById('toast-infobar');
+        document.getElementById('toast-text').textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+      }
+
+      /* ========================================================================
+         9. Animation & Render Loop (60 FPS)
+         ======================================================================== */
+      let lastFrameTime = performance.now();
+
+      function tick(now) {
+        const dt = Math.min((now - lastFrameTime) / 1000, 0.05);
+        lastFrameTime = now;
+
+        let anySliderPlaying = false;
+        for (const key of Object.keys(state.sliders)) {
+          const sl = state.sliders[key];
+          if (sl.playing) {
+            anySliderPlaying = true;
+            const span = sl.max - sl.min;
+            if (span > 0) {
+              const speed = span * 0.25;
+              sl.value += sl.dir * speed * dt;
+              if (sl.value >= sl.max) {
+                sl.value = sl.max;
+                sl.dir = -1;
+              } else if (sl.value <= sl.min) {
+                sl.value = sl.min;
+                sl.dir = 1;
+              }
+              const sCard = exprListEl.querySelector(`[data-param-key="${key}"]`);
+              if (sCard) {
+                sCard.querySelector('.win-slider').value = sl.value;
+                sCard.querySelector('.slider-val-input').value = Number(sl.value.toFixed(3));
+              }
+            }
+          }
+        }
+
+        if (anySliderPlaying) {
+          state.poisDirty = true;
+          state.needsRender = true;
+        }
+
+        if (state.needsRender) {
+          renderGraphToContext(ctx2d, canvas.clientWidth, canvas.clientHeight, { isExport: false });
+          state.needsRender = false;
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      /* ========================================================================
+         10. Initialization & ResizeObserver on Window Load
+         ======================================================================== */
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => {
+          resizeCanvas();
+          updateKeypadOffset();
+        });
+        ro.observe(canvasContainer);
+      } else {
+        window.addEventListener('resize', () => {
+          resizeCanvas();
+          updateKeypadOffset();
+        });
+      }
+
+      window.onload = () => {
+        resizeCanvas();
+        updateKeypadOffset();
+        loadPreset('default');
+        requestAnimationFrame(tick);
+      };
+    })();
+  </script>
+</body>
+</html>
